@@ -1,23 +1,15 @@
 {
-    "name": "sgpatil/orientdb",
-    "description": "",
+    "name": "sumit/orientdb",
+    "description": "Laravel Orientdb Driver",
+    "require": {
+        "php": "~5.5",
+        "illuminate/support": "~4.2"
+    },
+    "license": "MIT",
     "authors": [
         {
             "name": "Sumit Patil",
             "email": "sgpatil.2803@gmail.com"
         }
-    ],
-    "require": {
-        "php": ">=5.4.0",
-        "illuminate/support": "4.2.*"
-    },
-    "autoload": {
-        "classmap": [
-            "src/migrations"
-        ],
-        "psr-0": {
-            "Sgpatil\\Orientdb\\": "src/"
-        }
-    },
-    "minimum-stability": "stable"
+    ]
 }
