@@ -1,5 +1,5 @@
 {
-    "name": "sumit/orientdb",
+    "name": "sgpatil/orientdb",
     "description": "Laravel Orientdb Driver",
     "require": {
         "php": "~5.5",
