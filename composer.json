@@ -11,5 +11,14 @@
             "name": "Sumit Patil",
             "email": "sgpatil.2803@gmail.com"
         }
-    ]
+    ],
+	"autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Sgpatil\\Orientdb2\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
 }
