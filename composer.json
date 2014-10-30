@@ -17,7 +17,7 @@
             "src/migrations"
         ],
         "psr-0": {
-            "Sgpatil\\Orientdb2\\": "src/"
+            "Sgpatil\\Orientdb\\": "src/"
         }
     },
     "minimum-stability": "stable"
