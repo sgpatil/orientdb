@@ -3,7 +3,7 @@
 class Orientdb {
  
   public static function greeting(){
-    return "What up dawg";
+    echo "What up dawg";
   }
  
 }
