@@ -1,5 +1,7 @@
 <?php
+
 namespace Sgpatil\Orientdb;
+
 use Sgpatil\Orientdb\Connection\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,9 +20,8 @@ class OrientdbServiceProvider extends ServiceProvider {
      * @return void
      */
     public function boot() {
-        Model::setConnectionResolver($this->app['db']);
-
-        Model::setEventDispatcher($this->app['events']);
+        //Model::setConnectionResolver($this->app['db']);
+        //Model::setEventDispatcher($this->app['events']);
         $this->package('sgpatil/orientdb');
     }
 
@@ -30,10 +31,11 @@ class OrientdbServiceProvider extends ServiceProvider {
      * @return void
      */
     public function register() {
-echo "laravel_odb \n";
+
         $this->app['db']->extend('orientdb', function($config) {
             return new Connection($config);
         });
+
 
         $this->app['orientdb'] = $this->app->share(function($app) {
             return new Orientdb;
@@ -41,8 +43,7 @@ echo "laravel_odb \n";
 
         $this->app->booting(function() {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('Orientdb', 'Sgpatil\Orientdb\Facades\Orientdb');
-            $loader->alias('Model', 'Sgpatil\Orientdb\Connection\Model');
+            $loader->alias('Orientdb', 'Sgpatil\Orientdb\Connection');
         });
     }
 

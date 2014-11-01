@@ -1,5 +1,7 @@
 <?php
-use Illuminate\Database\Connection as IlluminateConnection;
+namespace Sgpatil\Orientdb;
+
+use Illuminate\Database\Eloquent\Model as IlluminateModel;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -11,7 +13,7 @@ use Illuminate\Database\Connection as IlluminateConnection;
  *
  * @author sumit
  */
-class Connection extends IlluminateConnection {
+class Connection extends IlluminateModel {
 
     /**
      * The Neo4j active client connection
@@ -34,7 +36,7 @@ class Connection extends IlluminateConnection {
      */
     protected $defaults = array(
         'host' => 'localhost',
-        'port' => 7474,
+        'port' => 2480,
         'username' => null,
         'password' => null
     );
@@ -53,7 +55,7 @@ class Connection extends IlluminateConnection {
      */
     public function __construct(array $config = array())
     {
-        echo "Connecting to  neo4j";
+
         $this->config = $config;
 
         // activate and set the database client connection
@@ -67,7 +69,8 @@ class Connection extends IlluminateConnection {
      */
     public function createConnection()
     {
-        echo "Connection";
+        echo "Connection ===> ".$this->getPort();
+exit;
         $client = new NeoClient($this->getHost(), $this->getPort());
         $client->getTransport()->setAuth($this->getUsername(), $this->getPassword());
         return $client;
