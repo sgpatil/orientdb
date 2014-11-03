@@ -2,6 +2,8 @@
 namespace Sgpatil\Orientdb;
 
 use Illuminate\Database\Eloquent\Model as IlluminateModel;
+use Doctrine\OrientDB\Binding\HttpBinding as Binding;
+use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -70,6 +72,14 @@ class Connection extends IlluminateModel {
     public function createConnection()
     {
         echo "Connection ===> ".$this->getPort();
+        $parameters = BindingParameters::create('http://root:root@127.0.0.1:2480/graphdb2');
+        $orient = new Binding($parameters);
+        $output = $orient->query("SELECT FROM Person");
+
+foreach ($output->getResult() as $address) {
+    var_dump($address->name);
+}
+
         exit;
         $parameters = Parameters::create('http://admin:admin@127.0.0.1:2480/demo');
 $orient = new Doctrine\OrientDB\Binding\HttpBinding($parameters);
