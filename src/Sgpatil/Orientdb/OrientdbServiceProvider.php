@@ -2,6 +2,7 @@
 
 namespace Sgpatil\Orientdb;
 
+use Sgpatil\Orientdb\Connection\Model;
 use Illuminate\Support\ServiceProvider;
 
 class OrientdbServiceProvider extends ServiceProvider {
@@ -19,6 +20,8 @@ class OrientdbServiceProvider extends ServiceProvider {
      * @return void
      */
     public function boot() {
+        //Model::setConnectionResolver($this->app['db']);
+        //Model::setEventDispatcher($this->app['events']);
         $this->package('sgpatil/orientdb');
     }
 
@@ -28,13 +31,19 @@ class OrientdbServiceProvider extends ServiceProvider {
      * @return void
      */
     public function register() {
+
+        $this->app['db']->extend('orientdb', function($config) {
+            return new Connection($config);
+        });
+
+
         $this->app['orientdb'] = $this->app->share(function($app) {
             return new Orientdb;
         });
 
         $this->app->booting(function() {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('Orientdb', 'Sgpatil\Orientdb\Facades\Orientdb');
+            $loader->alias('Orientdb', 'Sgpatil\Orientdb\Connection');
         });
     }
 
