@@ -1,28 +1,16 @@
-<?php
-namespace Sgpatil\Orientdb\Connection;
-use Vinelab\NeoEloquent\Eloquent\Relations\HasOne;
-use Vinelab\NeoEloquent\Eloquent\Relations\HasMany;
-use Vinelab\NeoEloquent\Eloquent\Relations\MorphTo;
-use Vinelab\NeoEloquent\Eloquent\Relations\BelongsTo;
-use Vinelab\NeoEloquent\Eloquent\Relations\HyperMorph;
-use Vinelab\NeoEloquent\Query\Builder as QueryBuilder;
-use Vinelab\NeoEloquent\Eloquent\Relations\MorphMany;
-use Vinelab\NeoEloquent\Eloquent\Relations\MorphedByOne;
-use Vinelab\NeoEloquent\Eloquent\Relations\BelongsToMany;
+<?php namespace Sgpatil\Orientdb\Eloquent;
+
+use Sgpatil\Orientdb\Eloquent\Relations\HasOne;
+use Sgpatil\Orientdb\Eloquent\Relations\HasMany;
+use Sgpatil\Orientdb\Eloquent\Relations\MorphTo;
+use Sgpatil\Orientdb\Eloquent\Relations\BelongsTo;
+use Sgpatil\Orientdb\Eloquent\Relations\HyperMorph;
+use Sgpatil\Orientdb\Query\Builder as QueryBuilder;
+use Sgpatil\Orientdb\Eloquent\Relations\MorphMany;
+use Sgpatil\Orientdb\Eloquent\Relations\MorphedByOne;
+use Sgpatil\Orientdb\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model as IlluminateModel;
-use Vinelab\NeoEloquent\Eloquent\Builder as EloquentBuilder;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of Model
- *
- * @author sumit
- */
+use Sgpatil\Orientdb\Eloquent\Builder as EloquentBuilder;
 
 abstract class Model extends IlluminateModel {
 
@@ -46,8 +34,8 @@ abstract class Model extends IlluminateModel {
     /**
      * Create a new Eloquent query builder for the model.
      *
-     * @param  Vinelab\NeoEloquent\Query\Builder $query
-     * @return Vinelab\NeoEloquent\Eloquent\Builder|static
+     * @param  Sgpatil\Orientdb\Query\Builder $query
+     * @return Sgpatil\Orientdb\Eloquent\Builder|static
      */
     public function newEloquentBuilder($query)
     {
@@ -57,12 +45,13 @@ abstract class Model extends IlluminateModel {
     /**
 	 * Get a new query builder instance for the connection.
 	 *
-	 * @return Vinelab\NeoEloquent\Query\Builder
+	 * @return Sgpatil\Orientdb\Query\Builder
 	 */
 	protected function newBaseQueryBuilder()
 	{
+      
 		$conn = $this->getConnection();
-
+exit('<br>test --- 1!!');
         $grammar = $conn->getQueryGrammar();
 
 		return new QueryBuilder($conn, $grammar);
@@ -209,7 +198,7 @@ abstract class Model extends IlluminateModel {
      * @param  string  $related
      * @param  string  $type
      * @param  string  $key
-     * @return \Vinelab\NeoEloquent\Eloquent\Relations\HasMany
+     * @return \Sgpatil\Orientdb\Eloquent\Relations\HasMany
      */
     public function hasMany($related, $type = null, $key = null, $relation = null)
     {
@@ -240,12 +229,12 @@ abstract class Model extends IlluminateModel {
      * @param  string  $type
      * @param  string  $key
      * @param  string  $relation
-     * @return \Vinelab\NeoEloquent\Eloquent\Relations\BelongsToMany
+     * @return \Sgpatil\Orientdb\Eloquent\Relations\BelongsToMany
      */
     public function belongsToMany($related, $table = null, $foreignKey = null, $otherKey = null, $relation = null)
     {
         // To escape the error:
-        // PHP Strict standards:  Declaration of Vinelab\NeoEloquent\Eloquent\Model::belongsToMany() should be
+        // PHP Strict standards:  Declaration of Sgpatil\Orientdb\Eloquent\Model::belongsToMany() should be
         //      compatible with Illuminate\Database\Eloquent\Model::belongsToMany()
         // We'll just map them in with the variables we want.
         $type     = $table;
@@ -285,13 +274,13 @@ abstract class Model extends IlluminateModel {
     /**
      * Create a new HyperMorph relationship.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $model
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $model
      * @param  string $related
      * @param  string $type
      * @param  string $morphType
      * @param  string $relation
      * @param  string $key
-     * @return \Vinelab\NeoEloquent\Eloquent\Relations\HyperMorph
+     * @return \Sgpatil\Orientdb\Eloquent\Relations\HyperMorph
      */
     public function hyperMorph($model, $related, $type = null, $morphType = null, $relation = null, $key = null)
     {
@@ -333,12 +322,12 @@ abstract class Model extends IlluminateModel {
      * @param  string  $type
      * @param  string  $key
      * @param  string  $relation
-     * @return \Vinelab\NeoEloquent\Eloquent\Relations\MorphMany
+     * @return \Sgpatil\Orientdb\Eloquent\Relations\MorphMany
      */
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
     {
         // To escape the error:
-        // Strict standards: Declaration of Vinelab\NeoEloquent\Eloquent\Model::morphMany() should be
+        // Strict standards: Declaration of Sgpatil\Orientdb\Eloquent\Model::morphMany() should be
         //          compatible with Illuminate\Database\Eloquent\Model::morphMany()
         // We'll just map them in with the variables we want.
         $relationType = $name;

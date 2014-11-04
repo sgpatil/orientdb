@@ -1,9 +1,16 @@
 <?php
 namespace Sgpatil\Orientdb;
 
+use DateTime, Closure;
+use Everyman\Neo4j\Query\ResultSet;
+use Sgpatil\Orientdb\Query\Builder;
+use Sgpatil\Orientdb\QueryException;
+use Illuminate\Database\Connection as IlluminateConnection;
 use Illuminate\Database\Eloquent\Model as IlluminateModel;
 use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
+use Doctrine\DBAL\DriverManager;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -15,7 +22,7 @@ use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
  *
  * @author sumit
  */
-class Connection extends IlluminateModel {
+class Connection {
 
     /**
      * The Neo4j active client connection
@@ -48,7 +55,7 @@ class Connection extends IlluminateModel {
      *
      * @var string
      */
-    protected $driverName = 'neo4j';
+    protected $driverName = 'orientdb';
 
     /**
      * Create a new database connection instance
@@ -69,29 +76,14 @@ class Connection extends IlluminateModel {
      *
      * @return Everyman\Neo4j\Client
      */
-    public function createConnection()
-    {
-        echo "Connection ===> ".$this->getPort();
-        $parameters = BindingParameters::create('http://root:root@127.0.0.1:2480/graphdb2');
+    public function createConnection() {
+        print_r($this->config );
+
+        $parameters = BindingParameters::create('http://root:root@127.0.0.1:2424/graphdb2');
         $orient = new Binding($parameters);
-        $output = $orient->query("SELECT FROM Person");
+        var_dump($parameters);
 
-foreach ($output->getResult() as $address) {
-    var_dump($address->name);
-}
-
-        exit;
-        $parameters = Parameters::create('http://admin:admin@127.0.0.1:2480/demo');
-$orient = new Doctrine\OrientDB\Binding\HttpBinding($parameters);
-$output = $orient->query("SELECT FROM Address");
-
-foreach ($output->getResult() as $address) {
-    var_dump($address->street);
-}
-exit;
-        $client = new NeoClient($this->getHost(), $this->getPort());
-        $client->getTransport()->setAuth($this->getUsername(), $this->getPassword());
-        return $client;
+        return $parameters;
     }
 
     /**
