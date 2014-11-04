@@ -6,6 +6,7 @@
         "illuminate/support": "~4.2",
 	"sgpatil/orientdb-odm": "dev-master",
 	"doctrine/dbal": "2.3.5"
+
     },
     "license": "MIT",
     "authors": [
