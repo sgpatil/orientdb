@@ -1,7 +1,7 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Edges;
 
-use Everyman\Neo4j\Path;
-use Everyman\Neo4j\Relationship;
+use \Orientdb\Path;
+use \Orientdb\Relationship;
 use Vinelab\NeoEloquent\Eloquent\Model;
 use Vinelab\NeoEloquent\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,7 +27,7 @@ class Finder extends Delegate {
      * @param  \Vinelab\NeoEloquent\Eloquent\Model  $parentModel
      * @param  \Vinelab\NeoEloquent\Eloquent\Model  $relatedModel
      * @param  string $direction
-     * @return \Everyman\Neo4j\Relationship
+     * @return \\Orientdb\Relationship
      */
     public function firstRelation(Model $parentModel, Model $relatedModel, $type, $direction = 'any')
     {
@@ -42,7 +42,7 @@ class Finder extends Delegate {
 
         // Find the path between parent and related nodes in the previously
         // determined direction according to the type and we will get returned
-        // an instance of \Everyman\Neo4j\Path which will lead us to the relationship.
+        // an instance of \\Orientdb\Path which will lead us to the relationship.
         $path = $parent->findPathsTo($related, $type, $direction)->getSinglePath();
 
         // Since we are sure that the relation between these two nodes is direct
@@ -132,7 +132,7 @@ class Finder extends Delegate {
     /**
      * Get the direction of a relationship out of a Relation instance.
      *
-     * @param  \Everyman\Neo4j\Relationship $relation
+     * @param  \\Orientdb\Relationship $relation
      * @param  \Vinelab\NeoEloquent\Eloquent\Model        $parent
      * @param  \Vinelab\NeoEloquent\Eloquent\Model        $related
      * @return string Either 'in' or 'out'
@@ -158,7 +158,7 @@ class Finder extends Delegate {
     /**
      * Get the Edge instance out of a Relationship based on a direction.
      *
-     * @param  \Everyman\Neo4j\Relationship $relation
+     * @param  \\Orientdb\Relationship $relation
      * @param  string $direction
      * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
      */

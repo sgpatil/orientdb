@@ -25,7 +25,7 @@ abstract class Delegate {
     /**
      * The database client.
      *
-     * @var \Everyman\Neo4j\Client
+     * @var \\Orientdb\Client
      */
     protected $client;
 
@@ -62,7 +62,7 @@ abstract class Delegate {
      * @param  \Vinelab\NeoEloquent\Eloquent\Model $startModel
      * @param  \Vinelab\NeoEloquent\Eloquent\Model $endModel
      * @param  array  $properties
-     * @return \Everyman\Neo4j\Relationship
+     * @return \\Orientdb\Relationship
      */
     protected function makeRelationship($type, $startModel, $endModel, $properties = array())
     {
@@ -77,7 +77,7 @@ abstract class Delegate {
     /**
      * Start a batch operation with the database.
      *
-     * @return \Everyman\Neo4j\Batch
+     * @return \\Orientdb\Batch
      */
     public function prepareBatch()
     {
@@ -104,7 +104,7 @@ abstract class Delegate {
     }
 
     /**
-     * Get the direction value from the Neo4j
+     * Get the direction value from the Orientdb
      * client according to the direction set on
      * the inheriting class,
      *
@@ -130,14 +130,14 @@ abstract class Delegate {
 
         $direction = "Direction". $direction;
 
-        return constant("Everyman\Neo4j\Relationship::". $direction);
+        return constant("\Orientdb\Relationship::". $direction);
     }
 
     /**
      * Convert a model to a Node object.
      *
      * @param  \Vinelab\NeoEloquent\Eloquent\Model $model
-     * @return \Everyman\Neo4j\Node
+     * @return \\Orientdb\Node
      */
     public function asNode(Model $model)
     {

@@ -2,7 +2,7 @@
 namespace Sgpatil\Orientdb;
 
 use DateTime, Closure;
-use Everyman\Neo4j\Query\ResultSet;
+
 use Sgpatil\Orientdb\Query\Builder;
 use Sgpatil\Orientdb\QueryException;
 use Illuminate\Database\Connection as IlluminateConnection;
@@ -10,12 +10,6 @@ use Illuminate\Database\Eloquent\Model as IlluminateModel;
 use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 use Doctrine\DBAL\DriverManager;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  * Description of Connection
@@ -25,16 +19,14 @@ use Doctrine\DBAL\DriverManager;
 class Connection {
 
     /**
-     * The Neo4j active client connection
-     *
-     * @var Everyman\Neo4j\Client
+     * The Orientdb Doctrine client connection
      */
-    protected $neo;
+    protected $orient;
 
     /**
-     * The Neo4j database transaction
+     * The Orientdb database transaction
      *
-     * @var \Everyman\Neo4j\Transaction
+     * @var 
      */
     protected $transaction;
 
@@ -51,7 +43,7 @@ class Connection {
     );
 
     /**
-     * The neo4j driver name
+     * The driver name
      *
      * @var string
      */
@@ -68,13 +60,13 @@ class Connection {
         $this->config = $config;
 
         // activate and set the database client connection
-        $this->neo = $this->createConnection();
+        $this->orient = $this->createConnection();
     }
 
     /**
-     * Create a new Neo4j client
+     * Create a new Orientdb client
      *
-     * @return Everyman\Neo4j\Client
+     * @return 
      */
     public function createConnection() {
         print_r($this->config );
@@ -89,22 +81,22 @@ class Connection {
     /**
      * Get the currenty active database client
      *
-     * @return Everyman\Neo4j\Client
+     * @return 
      */
     public function getClient()
     {
-        return $this->neo;
+        return $this->orient;
     }
 
     /**
      * Set the client responsible for the
      * database communication
      *
-     * @param \Everyman\Neo4j\Client $client
+     * @param 
      */
     public function setClient(NeoClient $client)
     {
-        $this->neo = $client;
+        $this->orient = $client;
     }
 
 
@@ -159,7 +151,7 @@ class Connection {
     }
 
     /**
-     * Get the Neo4j driver name.
+     * Get the  driver name.
      *
      * @return string
      */
@@ -217,7 +209,7 @@ class Connection {
      *
      * @param  string  $query
      * @param  array   $bindings
-     * @return bool|\Everyman\Neo4j\Query\ResultSet When $result is set to true.
+     * @return 
      */
     public function statement($query, $bindings = array(), $rawResults = false)
     {
@@ -261,7 +253,7 @@ class Connection {
         {
             // The bindings are collected in a little bit different way than
             // Eloquent, we will need the key name in order to know where to replace
-            // the value using the Neo4j client.
+            // the value using the Orientdb client.
             $value = $binding;
 
             // We need to get the array value of the binding
@@ -297,7 +289,7 @@ class Connection {
 
             foreach ($binding as $property => $real)
             {
-                // We should not pass any numeric key-value items since the Neo4j client expects
+                // We should not pass any numeric key-value items since the Orientdb client expects
                 // a JSON map parameters.
                 if (is_numeric($property))
                 {
@@ -371,7 +363,7 @@ class Connection {
 
         if ($this->transactions == 1)
         {
-            $this->transaction = $this->neo->beginTransaction();
+            $this->transaction = $this->orient->beginTransaction();
         }
 
         $this->fireConnectionEvent('beganTransaction');
@@ -414,7 +406,7 @@ class Connection {
 
     /**
      * Begin a fluent query against a database table.
-     * In neo4j's terminologies this is a node.
+     * In Orientdb's terminologies this is a node.
      *
      * @param  string  $table
      * @return \Vinelab\NeoEloquent\Query\Builder
@@ -441,7 +433,7 @@ class Connection {
         $start = microtime(true);
 
         // To execute the statement, we'll simply call the callback, which will actually
-        // run the Cypher against the Neo4j connection. Then we can calculate the time it
+        // run the Cypher against the Orientdb connection. Then we can calculate the time it
         // took to execute and log the query Cypher, bindings and time in our memory.
         try
         {

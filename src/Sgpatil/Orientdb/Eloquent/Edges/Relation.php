@@ -2,7 +2,7 @@
 
 use DateTime;
 use Carbon\Carbon;
-use Everyman\Neo4j\Relationship;
+use \Orientdb\Relationship;
 use Illuminate\Database\Eloquent\Collection;
 use Vinelab\NeoEloquent\Eloquent\Model;
 use Vinelab\NeoEloquent\Eloquent\Builder;
@@ -20,13 +20,13 @@ abstract class Relation extends Delegate {
     /**
      * The start node of the relationship.
      *
-     * @var \Everyman\Neo4j\Node
+     * @var \\Orientdb\Node
      */
     protected $start;
     /**
      * The end node of the relationship.
      *
-     * @var \Everyman\Neo4j\Node
+     * @var \\Orientdb\Node
      */
     protected $end;
 
@@ -85,7 +85,7 @@ abstract class Relation extends Delegate {
     /**
      * The relationship instance.
      *
-     * @var \Everyman\Neo4j\Relationship
+     * @var \\Orientdb\Relationship
      */
     protected $relation;
 
@@ -247,7 +247,7 @@ abstract class Relation extends Delegate {
      * Create a new Relation of the current instance
      * from an existing database relation.
      *
-     * @param  Everyman\Neo4j\Relationship $relation
+     * @param  \Orientdb\Relationship $relation
      * @return static
      */
     public function newFromRelation(Relationship $relation)
@@ -260,9 +260,9 @@ abstract class Relation extends Delegate {
     }
 
     /**
-     * Get the Neo4j relationship object.
+     * Get the Orientdb relationship object.
      *
-     * @return \Everyman\Neo4j\Relationship
+     * @return \\Orientdb\Relationship
      */
     public function getReal()
     {
@@ -292,7 +292,7 @@ abstract class Relation extends Delegate {
     /**
      * Set a given relationship on this relation.
      *
-     * @param \Everyman\Neo4j\Relationship $relation
+     * @param \\Orientdb\Relationship $relation
      */
     public function setRelation(Relationship $relation, $debug = false)
     {
@@ -609,7 +609,7 @@ abstract class Relation extends Delegate {
     /**
      * Get the left node of the relationship.
      *
-     * @return \Everyman\Neo4j\Node
+     * @return \\Orientdb\Node
      */
     public function getStartNode()
     {
@@ -619,7 +619,7 @@ abstract class Relation extends Delegate {
     /**
      * Get the end Node of the relationship.
      *
-     * @return \Everyman\Neo4j\Node
+     * @return \\Orientdb\Node
      */
     public function getEndNode()
     {

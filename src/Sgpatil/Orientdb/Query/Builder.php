@@ -19,7 +19,7 @@ class Builder extends IlluminateQueryBuilder {
     /**
      * The database active client handler
      *
-     * @var Everyman\Neo4j\Client
+     * @var \Orientdb\Client
      */
     protected $client;
 
@@ -103,7 +103,7 @@ class Builder extends IlluminateQueryBuilder {
 	 */
     public function insertGetId(array $values, $sequence = null)
     {
-        // create a neo4j Node
+        // create a Orientdb Node
         $node = $this->client->makeNode();
 
         // set its properties
@@ -742,10 +742,10 @@ class Builder extends IlluminateQueryBuilder {
     }
 
     /**
-     * Convert a string into a Neo4j Label.
+     * Convert a string into a Orientdb Label.
      *
      * @param   string  $label
-     * @return Everyman\Neo4j\Label
+     * @return \Orientdb\Label
      */
     public function makeLabel($label)
     {

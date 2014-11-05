@@ -1,12 +1,12 @@
 <?php namespace Sgpatil\Orientdb;
 
-use Everyman\Neo4j\Exception as Neo4jException;
+use \Orientdb\Exception as Neo4jException;
 
 class QueryException extends Neo4jException {
 
     public function __construct($query, $bindings = array(), $exception = null)
     {
-        // Let's handle Neo4j exceptions into the QueryException so that we extract
+        // Let's handle Orientdb exceptions into the QueryException so that we extract
         // relevant info from it and send a helpful decent exception.
         if ($exception instanceof Neo4jException)
         {
@@ -30,7 +30,7 @@ class QueryException extends Neo4jException {
     /**
      * Format the message that should be printed out for devs.
      *
-     * @param  \Everyman\Neo4j\Exception $exception
+     * @param  \\Orientdb\Exception $exception
      * @return string
      */
     protected function formatMessage(Neo4jException $exception)

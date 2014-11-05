@@ -41,7 +41,7 @@ class HyperEdge extends Relation {
     /**
      * The Hyper node of the relationship (sits in the middle b/w start and end).
      *
-     * @var \Everyman\Neo4j\Node
+     * @var \\Orientdb\Node
      */
     protected $hyper;
 

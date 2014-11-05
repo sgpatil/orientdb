@@ -63,7 +63,7 @@ class CypherGrammar extends Grammar {
 
 		foreach ($components as $component)
 		{
-            // Compiling return for Neo4j is
+            // Compiling return for Orientdb is
             // handled in the compileColumns method
             // in order to keep the convenience provided by Eloquent
             // that deals with collecting and processing the columns

@@ -79,11 +79,11 @@ exit('<br>test --- 1!!');
         $label = (empty($this->label)) ? $this->table : $this->label;
 
         // The label is accepted as an array for a convenience so we need to
-        // convert it to a string separated by ':' following Neo4j's labels
+        // convert it to a string separated by ':' following Orientdb's labels
         if (is_array($label) && ! empty($label)) return $label;
 
         // since this is not an array, it is assumed to be a string
-        // we check to see if it follows neo4j's labels naming (User:Fan)
+        // we check to see if it follows Orientdb's labels naming (User:Fan)
         // and return an array exploded from the ':'
         if ( ! empty($label))
         {

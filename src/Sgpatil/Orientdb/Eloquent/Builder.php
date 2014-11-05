@@ -1,9 +1,9 @@
 <?php namespace Sgpatil\Orientdb\Eloquent;
 
-use Everyman\Neo4j\Node;
-use Everyman\Neo4j\Query\Row;
+use \Orientdb\Node;
+use \Orientdb\Query\Row;
 use Vinelab\NeoEloquent\Helpers;
-use Everyman\Neo4j\Query\ResultSet;
+use \Orientdb\Query\ResultSet;
 use Vinelab\NeoEloquent\Eloquent\Model;
 use Vinelab\NeoEloquent\QueryException;
 use Illuminate\Database\Eloquent\Collection;
@@ -82,9 +82,9 @@ class Builder extends IlluminateBuilder {
 	}
 
     /**
-     * Turn Neo4j result set into the corresponding model
+     * Turn Orientdb result set into the corresponding model
      * @param  string $connection
-     * @param  \Everyman\Neo4j\Query\ResultSet $results
+     * @param  \\Orientdb\Query\ResultSet $results
      * @return array
      */
     protected function resultsToModels($connection, ResultSet $results)
@@ -202,7 +202,7 @@ class Builder extends IlluminateBuilder {
             // We need the relationship from the result since it has the mutation model property's
             // value being the model that we should mutate to as set earlier by a HyperEdge.
             // NOTE: 'r' is statically set in CypherGrammer to represent the relationship.
-            // Now we have an \Everyman\Neo4j\Relationship instance that has our morph class name.
+            // Now we have an \\Orientdb\Relationship instance that has our morph class name.
             $relationship = $result['r'];
 
             // Get the morph class name.
@@ -236,7 +236,7 @@ class Builder extends IlluminateBuilder {
      * out of a result row.
      *
      * @param  array $columns The columns retrieved by the result
-     * @param \Everyman\Neo4j\Query\Row $row
+     * @param \\Orientdb\Query\Row $row
      * @param  array $columns
      * @return array
      */
@@ -286,7 +286,7 @@ class Builder extends IlluminateBuilder {
             }
 
             // If the node id is in the columns we need to treat it differently
-            // since Neo4j's convenience with node ids will be retrieved as id(n)
+            // since Orientdb's convenience with node ids will be retrieved as id(n)
             // instead of n.id.
 
             // WARNING: Do this after setting all the attributes to avoid overriding it
@@ -310,7 +310,7 @@ class Builder extends IlluminateBuilder {
     /**
      * Gather the properties of a Node including its id.
      *
-     * @param  \Everyman\Neo4j\Node   $node
+     * @param  \\Orientdb\Node   $node
      * @return array
      */
     public function getNodeAttributes(Node $node)
@@ -318,7 +318,7 @@ class Builder extends IlluminateBuilder {
         // Extract the properties of the node
         $attributes = $node->getProperties();
 
-        // Add the node id to the attributes since \Everyman\Neo4j\Node
+        // Add the node id to the attributes since \\Orientdb\Node
         // does not consider it to be a property, it is treated differently
         // and available through the getId() method.
         $attributes[$this->model->getKeyName()] = $node->getId();
@@ -329,9 +329,9 @@ class Builder extends IlluminateBuilder {
     /**
      * Get the attributes of a result Row
      *
-     * @param  \Everyman\Neo4j\Query\Row    $row
+     * @param  \\Orientdb\Query\Row    $row
      * @param  array $columns The query columns
-     * @param  array $resultColumns The result columns that can be extracted from a \Everyman\Neo4j\Query\ResultSet
+     * @param  array $resultColumns The result columns that can be extracted from a \\Orientdb\Query\ResultSet
      * @return array
      */
     public function getRowAttributes(Row $row, $columns, $resultColumns)
@@ -555,7 +555,7 @@ class Builder extends IlluminateBuilder {
      * of a node, otherwise if they're plain strings like 'user' and they're more than one then
      * the reference is assumed to be a Node placeholder rather than a property.
      *
-     * @param  \Everyman\Neo4j\Query\Row $row
+     * @param  \\Orientdb\Query\Row $row
      * @return boolean
      */
     public function isRelationship(array $columns)
@@ -727,7 +727,7 @@ class Builder extends IlluminateBuilder {
                 }
                 // Or in the case where the attributes are neither an array nor a model instance
                 // then this is assumed to be the model Id that the dev means to attach and since
-                // Neo4j node Ids are always an int then we take that as a value.
+                // Orientdb node Ids are always an int then we take that as a value.
                 elseif ( ! is_array($value) && ! $value instanceof Model)
                 {
                     $attach[] = intval($value);
@@ -812,7 +812,7 @@ class Builder extends IlluminateBuilder {
     }
 
     /**
-     * Determine whether a value is an Id attribute according to Neo4j.
+     * Determine whether a value is an Id attribute according to Orientdb.
      *
      * @param  string  $value
      * @return boolean

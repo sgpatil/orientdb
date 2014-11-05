@@ -110,7 +110,7 @@ class Grammar extends IlluminateGrammar {
 
         // In the case where the developer specifies the properties and not returning
         // everything, we need to check whether the primaryKey is meant to be returned
-        // since Neo4j's way of evaluating returned properties for the Node id is
+        // since Orientdb's way of evaluating returned properties for the Node id is
         // different: id(n) instead of n.id
 
         if ($value == 'id')
@@ -248,7 +248,7 @@ class Grammar extends IlluminateGrammar {
         $properties = [];
         foreach ($bindings as $key => $value)
         {
-            // From the Neo4j docs:
+            // From the Orientdb docs:
             //  "NULL is not a valid property value. NULLs can instead be modeled by the absence of a key."
             // So we'll just ignore null keys if they occur.
             if (is_null($value)) continue;
