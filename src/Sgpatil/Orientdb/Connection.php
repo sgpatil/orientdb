@@ -16,7 +16,7 @@ use Doctrine\DBAL\DriverManager;
  *
  * @author sumit
  */
-class Connection {
+class Connection extends IlluminateConnection {
 
     /**
      * The Orientdb Doctrine client connection
@@ -69,12 +69,8 @@ class Connection {
      * @return 
      */
     public function createConnection() {
-        print_r($this->config );
-
         $parameters = BindingParameters::create('http://root:root@127.0.0.1:2424/graphdb2');
         $orient = new Binding($parameters);
-        var_dump($parameters);
-
         return $parameters;
     }
 
@@ -308,7 +304,7 @@ class Connection {
     /**
      * Get the query grammar used by the connection.
      *
-     * @return \Vinelab\NeoEloquent\Query\Grammars\CypherGrammar
+     * @return \Sgpatil\Orientdb\Query\Grammars\CypherGrammar
      */
     public function getQueryGrammar()
     {
@@ -323,7 +319,7 @@ class Connection {
     /**
      * Get the default query grammar instance.
      *
-     * @return \Vinelab\NeoEloquent\Query\Grammars\CypherGrammar
+     * @return \Sgpatil\Orientdb\Query\Grammars\CypherGrammar
      */
     protected function getDefaultQueryGrammar()
     {
@@ -409,7 +405,7 @@ class Connection {
      * In Orientdb's terminologies this is a node.
      *
      * @param  string  $table
-     * @return \Vinelab\NeoEloquent\Query\Builder
+     * @return \Sgpatil\Orientdb\Query\Builder
      */
     public function table($table)
     {

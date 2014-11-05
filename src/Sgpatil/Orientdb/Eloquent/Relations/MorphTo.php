@@ -1,9 +1,9 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\Eloquent\Builder;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Vinelab\NeoEloquent\Eloquent\Edges\EdgeOut;
+use Sgpatil\Orientdb\Eloquent\Edges\EdgeOut;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class MorphTo extends OneRelation {
@@ -113,7 +113,7 @@ class MorphTo extends OneRelation {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\EdgeOut
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\EdgeOut
      */
     public function getEdge(EloquentModel $model = null, $attributes = array())
     {

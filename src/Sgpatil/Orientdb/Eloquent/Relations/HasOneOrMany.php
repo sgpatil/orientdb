@@ -1,10 +1,10 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\Eloquent\Builder;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Vinelab\NeoEloquent\Eloquent\Edges\Finder;
-use Vinelab\NeoEloquent\Eloquent\Edges\Relation;
+use Sgpatil\Orientdb\Eloquent\Edges\Finder;
+use Sgpatil\Orientdb\Eloquent\Edges\Relation;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany as IlluminateHasOneOrMany;
@@ -21,7 +21,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
     /**
      * The relationships finder instance.
      *
-     * @var \Vinelab\NeoEloquent\Eloquent\Edges\Finder
+     * @var \Sgpatil\Orientdb\Eloquent\Edges\Finder
      */
     protected $finder;
 
@@ -35,8 +35,8 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
     /**
      * Create a new has many relationship instance.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Builder  $query
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $parent
+     * @param  \Sgpatil\Orientdb\Eloquent\Builder  $query
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $parent
      * @param  string  $type
      * @return void
      */
@@ -96,7 +96,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In,Out, etc.]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In,Out, etc.]
      */
     abstract public function getEdge(EloquentModel $model = null, $attributes = array());
 
@@ -105,7 +105,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
      * the related model determined by the relation function name.
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In,Out, etc.]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In,Out, etc.]
      */
     public function edge(Model $model = null)
     {
@@ -115,7 +115,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
     /**
      * Get all the edges of the given type and direction.
      *
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]
      */
     public function edges()
     {
@@ -186,7 +186,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @param  array $properties The relationship properites
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In, Out, etc.]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In, Out, etc.]
      */
     public function save(EloquentModel $model, array $properties = array())
     {
@@ -225,7 +225,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
      *
      * @param  array  $attributes
      * @param  array   $properties The relationship properites
-     * @return \Vinelab\NeoEloquent\Eloquent\Model
+     * @return \Sgpatil\Orientdb\Eloquent\Model
      */
     public function create(array $attributes, array $properties = array())
     {
@@ -573,7 +573,7 @@ abstract class HasOneOrMany extends IlluminateHasOneOrMany implements RelationIn
     /**
      * Get a new Finder instance.
      *
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Finder
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Finder
      */
     public function newFinder()
     {

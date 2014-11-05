@@ -1,10 +1,10 @@
 <?php namespace Sgpatil\Orientdb\Query;
 
 use Closure;
-use Vinelab\NeoEloquent\Connection;
+use Sgpatil\Orientdb\Connection;
 use Illuminadte\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Collection;
-use Vinelab\NeoEloquent\Query\Grammars\Grammar;
+use Sgpatil\Orientdb\Query\Grammars\Grammar;
 use Illuminate\Database\Query\Builder as IlluminateQueryBuilder;
 
 class Builder extends IlluminateQueryBuilder {
@@ -12,7 +12,7 @@ class Builder extends IlluminateQueryBuilder {
     /**
      * The database connection instance
      *
-     * @var Vinelab\NeoEloquent\Connection
+     * @var Sgpatil\Orientdb\Connection
      */
     protected $connection;
 
@@ -68,7 +68,7 @@ class Builder extends IlluminateQueryBuilder {
     /**
      * Create a new query builder instance.
      *
-     * @param Vinelab\NeoEloquent\Connection $connection
+     * @param Sgpatil\Orientdb\Connection $connection
      * @return void
      */
     public function __construct(Connection $connection, Grammar $grammar)
@@ -85,7 +85,7 @@ class Builder extends IlluminateQueryBuilder {
 	 * Set the node's label which the query is targeting.
 	 *
 	 * @param  string  $label
-	 * @return \Vinelab\NeoEloquent\Query\Builder|static
+	 * @return \Sgpatil\Orientdb\Query\Builder|static
 	 */
     public function from($label)
     {
@@ -425,7 +425,7 @@ class Builder extends IlluminateQueryBuilder {
      * Add a WITH clause to the query.
      *
      * @param  array  $parts
-     * @return \Vinelab\NeoEloquent\Query\Builder|static
+     * @return \Sgpatil\Orientdb\Query\Builder|static
      */
     public function with(array $parts)
     {
@@ -489,7 +489,7 @@ class Builder extends IlluminateQueryBuilder {
      *
      * @param  array  $model
      * @param  array  $related
-     * @return \Vinelab\NeoEloquent\Eloquent\Model
+     * @return \Sgpatil\Orientdb\Eloquent\Model
      */
     public function createWith(array $model, array $related)
     {
@@ -536,14 +536,14 @@ class Builder extends IlluminateQueryBuilder {
     /**
      * Add a relationship MATCH clause to the query.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $parent       The parent model of the relationship
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $related      The related model
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $parent       The parent model of the relationship
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $related      The related model
      * @param  string $relatedNode  The related node' placeholder
      * @param  string $relationship The relationship title
      * @param  string $property     The parent's property we are matching against
      * @param  string $value
      * @param  string $direction Possible values are in, out and in-out
-     * @return \Vinelab\NeoEloquent\Query\Builder|static
+     * @return \Sgpatil\Orientdb\Query\Builder|static
      */
     public function matchRelation($parent, $related, $relatedNode, $relationship, $property, $value = null, $direction = 'out')
     {

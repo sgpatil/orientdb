@@ -1,8 +1,8 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\Eloquent\Builder;
-use Vinelab\NeoEloquent\Eloquent\Edges\HyperEdge;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\Eloquent\Builder;
+use Sgpatil\Orientdb\Eloquent\Edges\HyperEdge;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class HyperMorph extends BelongsToMany {
@@ -11,7 +11,7 @@ class HyperMorph extends BelongsToMany {
      * The morph Model instance
      * representing the 3rd Node of the relationship.
      *
-     * @var \Vinelab\NeoEloquent\Eloquent\Model
+     * @var \Sgpatil\Orientdb\Eloquent\Model
      */
     protected $morph;
 
@@ -33,9 +33,9 @@ class HyperMorph extends BelongsToMany {
     /**
      * Create a new HyperMorph relationship.
      *
-     * @param \Vinelab\NeoEloquent\Eloquent\Builder $query
-     * @param Vinelab\NeoEloquent\Eloquent\Model   $parent
-     * @param Vinelab\NeoEloquent\Eloquent\Model   $morph
+     * @param \Sgpatil\Orientdb\Eloquent\Builder $query
+     * @param Sgpatil\Orientdb\Eloquent\Model   $parent
+     * @param Sgpatil\Orientdb\Eloquent\Model   $morph
      * @param string  $type
      * @param string  $morphType
      * @param string  $key

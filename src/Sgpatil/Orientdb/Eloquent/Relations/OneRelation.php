@@ -40,7 +40,7 @@ abstract class OneRelation extends BelongsTo implements RelationInterface {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In,Out, etc.]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In,Out, etc.]
      */
     abstract function getEdge(Model $model = null, $attributes = array());
 
@@ -58,7 +58,7 @@ abstract class OneRelation extends BelongsTo implements RelationInterface {
      * Associate the model instance to the given parent.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Relation
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Relation
      */
     public function associate(Model $model, $attributes = array())
     {
@@ -104,7 +104,7 @@ abstract class OneRelation extends BelongsTo implements RelationInterface {
      * the related model determined by the relation function name.
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In,Out, etc.]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In,Out, etc.]
      */
     public function edge(Model $model = null)
     {

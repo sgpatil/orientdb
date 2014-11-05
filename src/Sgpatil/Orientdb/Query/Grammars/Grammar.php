@@ -7,7 +7,7 @@ class Grammar extends IlluminateGrammar {
     /**
      * The Query builder instance.
      *
-     * @var Vinelab\NeoEloquent\Query\Builder
+     * @var Sgpatil\Orientdb\Query\Builder
      */
     protected $query;
 
@@ -178,7 +178,7 @@ class Grammar extends IlluminateGrammar {
 
         // When this is a related node we'll just prepend it with 'with_' that way we avoid
         // clashing node models in the cases like using recursive model relations.
-        // @see https://github.com/Vinelab/NeoEloquent/issues/7
+        // 
         if ( ! is_null($relation)) $labels = 'with_'. $relation .'_'. $labels;
 
         return mb_strtolower($labels);
@@ -187,7 +187,7 @@ class Grammar extends IlluminateGrammar {
     /**
      * Set the query builder for this grammar instance.
      *
-     * @param \Vinelab\NeoEloquent\Query\Builder $query
+     * @param \Sgpatil\Orientdb\Query\Builder $query
      */
     public function setQuery($query)
     {

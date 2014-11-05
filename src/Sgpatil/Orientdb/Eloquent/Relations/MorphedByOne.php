@@ -1,6 +1,6 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Edges\EdgeOut;
+use Sgpatil\Orientdb\Eloquent\Edges\EdgeOut;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class MorphedByOne extends OneRelation {
@@ -90,7 +90,7 @@ class MorphedByOne extends OneRelation {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\EdgeOut
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\EdgeOut
      */
     public function getEdge(EloquentModel $model = null, $attributes = array())
     {

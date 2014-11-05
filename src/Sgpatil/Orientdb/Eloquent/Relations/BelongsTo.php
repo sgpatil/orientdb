@@ -1,6 +1,6 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Edges\EdgeIn;
+use Sgpatil\Orientdb\Eloquent\Edges\EdgeIn;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class BelongsTo extends OneRelation {
@@ -97,7 +97,7 @@ class BelongsTo extends OneRelation {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\EdgeIn
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\EdgeIn
      */
     public function getEdge(EloquentModel $model = null, $attributes = array())
     {

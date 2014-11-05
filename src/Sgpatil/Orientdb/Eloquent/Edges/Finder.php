@@ -2,8 +2,8 @@
 
 use \Orientdb\Path;
 use \Orientdb\Relationship;
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\Eloquent\Builder;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class Finder extends Delegate {
@@ -11,9 +11,9 @@ class Finder extends Delegate {
     /**
      * Create a new Finder instance.
      *
-     * @param \Vinelab\NeoEloquent\Eloquent\Builder $query
-     * @param \Vinelab\NeoEloquent\Eloquent\Model   $parent
-     * @param \Vinelab\NeoEloquent\Eloquent\Model   $related
+     * @param \Sgpatil\Orientdb\Eloquent\Builder $query
+     * @param \Sgpatil\Orientdb\Eloquent\Model   $parent
+     * @param \Sgpatil\Orientdb\Eloquent\Model   $related
      * @param string  $type
      */
     public function __construct(Builder $query)
@@ -24,8 +24,8 @@ class Finder extends Delegate {
     /**
      * Get the direct relation between two models.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $parentModel
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $relatedModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $parentModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $relatedModel
      * @param  string $direction
      * @return \\Orientdb\Relationship
      */
@@ -62,10 +62,10 @@ class Finder extends Delegate {
     /**
      * Get the first edge relationship between two models.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $parentModel
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $relatedModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $parentModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $relatedModel
      * @param  string $direction
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]|null
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]|null
      */
     public function first(Model $parentModel, Model $relatedModel, $type, $direction = 'any')
     {
@@ -83,8 +83,8 @@ class Finder extends Delegate {
     /**
      * Get the edges between two models.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $parent
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model  $related
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $parent
+     * @param  \Sgpatil\Orientdb\Eloquent\Model  $related
      * @param  string|array $type
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -110,12 +110,12 @@ class Finder extends Delegate {
     /**
      * Get the first HyperEdge between three models.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $parent
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $related
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $morph
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $parent
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $related
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $morph
      * @param  string $type
      * @param  string $morphType
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\HyperEdge
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\HyperEdge
      */
     public function hyperFirst($parent, $related, $morph, $type, $morphType)
     {
@@ -133,8 +133,8 @@ class Finder extends Delegate {
      * Get the direction of a relationship out of a Relation instance.
      *
      * @param  \\Orientdb\Relationship $relation
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model        $parent
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model        $related
+     * @param  \Sgpatil\Orientdb\Eloquent\Model        $parent
+     * @param  \Sgpatil\Orientdb\Eloquent\Model        $related
      * @return string Either 'in' or 'out'
      */
     public function directionFromRelation(Relationship $relation, Model $parent, Model $related)
@@ -160,7 +160,7 @@ class Finder extends Delegate {
      *
      * @param  \\Orientdb\Relationship $relation
      * @param  string $direction
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]
      */
     public function edgeFromRelationWithDirection(Relationship $relation, Model $parent, Model $related, $direction)
     {

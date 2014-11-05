@@ -49,11 +49,8 @@ abstract class Model extends IlluminateModel {
 	 */
 	protected function newBaseQueryBuilder()
 	{
-      
 		$conn = $this->getConnection();
-exit('<br>test --- 1!!');
-        $grammar = $conn->getQueryGrammar();
-
+                                        $grammar = $conn->getQueryGrammar();
 		return new QueryBuilder($conn, $grammar);
 	}
 
@@ -368,11 +365,11 @@ exit('<br>test --- 1!!');
     /**
      * Create an inverse one-to-one polymorphic relationship with specified model and relation.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $related
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $related
      * @param  string $type
      * @param  string $key
      * @param  string $relation
-     * @return \Vinelab\NeoEloquent\Eloquent\Relations\MorphedByOne
+     * @return \Sgpatil\Orientdb\Eloquent\Relations\MorphedByOne
      */
     public function morphedByOne($related, $type, $key = null, $relation = null)
     {

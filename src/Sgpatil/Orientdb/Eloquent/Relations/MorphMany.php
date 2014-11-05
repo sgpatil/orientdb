@@ -1,6 +1,6 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Edges\EdgeOut;
+use Sgpatil\Orientdb\Eloquent\Edges\EdgeOut;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class MorphMany extends BelongsToMany {
@@ -89,7 +89,7 @@ class MorphMany extends BelongsToMany {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]
      */
     public function getEdge(EloquentModel $model = null, $attributes = array())
     {

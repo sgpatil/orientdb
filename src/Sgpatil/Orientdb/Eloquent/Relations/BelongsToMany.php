@@ -1,9 +1,9 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Relations;
 
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\Eloquent\Builder;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Vinelab\NeoEloquent\Eloquent\Edges\EdgeIn;
+use Sgpatil\Orientdb\Eloquent\Edges\EdgeIn;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class BelongsToMany extends HasOneOrMany {
@@ -151,7 +151,7 @@ class BelongsToMany extends HasOneOrMany {
      * the related model determined by the relation function name.
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]
      */
     public function edge(Model $model = null)
     {
@@ -163,7 +163,7 @@ class BelongsToMany extends HasOneOrMany {
      *
      * @param  \Illuminate\Database\Eloquent\Model $model
      * @param  array         $attributes
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Edge[In|Out]
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Edge[In|Out]
      */
     public function getEdge(EloquentModel $model = null, $attributes = array())
     {

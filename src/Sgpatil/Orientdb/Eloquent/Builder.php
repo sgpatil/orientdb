@@ -2,10 +2,10 @@
 
 use \Orientdb\Node;
 use \Orientdb\Query\Row;
-use Vinelab\NeoEloquent\Helpers;
+use Sgpatil\Orientdb\Helpers;
 use \Orientdb\Query\ResultSet;
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\QueryException;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\QueryException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder as IlluminateBuilder;
 
@@ -53,7 +53,7 @@ class Builder extends IlluminateBuilder {
      *
      * @param  array  $parts Should be associative of the form ['value' => 'identifier']
      *                       and will be mapped to 'WITH value as identifier'
-     * @return \Vinelab\NeoEloquent\Eloquent\Builder|static
+     * @return \Sgpatil\Orientdb\Eloquent\Builder|static
      */
     public function carry(array $parts)
     {
@@ -349,10 +349,10 @@ class Builder extends IlluminateBuilder {
     /**
      * Add an INCOMING "<-" relationship MATCH to the query.
      *
-     * @param  Vinelab\NeoEloquent\Eloquent\Model $parent       The parent model
-     * @param  Vinelab\NeoEloquent\Eloquent\Model $related      The related model
+     * @param  Sgpatil\Orientdb\Eloquent\Model $parent       The parent model
+     * @param  Sgpatil\Orientdb\Eloquent\Model $related      The related model
      * @param  string                             $relationship
-     * @return Vinelab\NeoEloquent\Eloquent|static
+     * @return Sgpatil\Orientdb\Eloquent|static
      */
     public function matchIn($parent, $related, $relatedNode, $relationship, $property, $value = null)
     {
@@ -365,10 +365,10 @@ class Builder extends IlluminateBuilder {
     /**
      * Add an OUTGOING "->" relationship MATCH to the query.
      *
-     * @param  Vinelab\NeoEloquent\Eloquent\Model $parent       The parent model
-     * @param  Vinelab\NeoEloquent\Eloquent\Model $related      The related model
+     * @param  Sgpatil\Orientdb\Eloquent\Model $parent       The parent model
+     * @param  Sgpatil\Orientdb\Eloquent\Model $related      The related model
      * @param  string                             $relationship
-     * @return Vinelab\NeoEloquent\Eloquent|static
+     * @return Sgpatil\Orientdb\Eloquent|static
      */
     public function matchOut($parent, $related, $relatedNode, $relationship, $property, $value = null)
     {
@@ -382,11 +382,11 @@ class Builder extends IlluminateBuilder {
      * a morph relationship usually ignores the end node type since it doesn't know
      * what it would be so we'll only set the start node and hope to get it right when we match it.
      *
-     * @param  Vinelab\NeoEloquent\Eloquent\Model $parent
+     * @param  Sgpatil\Orientdb\Eloquent\Model $parent
      * @param  string $relatedNode
      * @param  string $property
      * @param  mixed $value
-     * @return Vinelab\NeoEloquent\Eloquent|static
+     * @return Sgpatil\Orientdb\Eloquent|static
      */
     public function matchMorphOut($parent, $relatedNode, $property, $value = null)
     {
@@ -422,7 +422,7 @@ class Builder extends IlluminateBuilder {
      * Add a mutation to the query.
      *
      * @param string $holder
-     * @param \Vinelab\NeoEloquent\Eloquent\Model|string  $model String in the case of morphs where we do not know
+     * @param \Sgpatil\Orientdb\Eloquent\Model|string  $model String in the case of morphs where we do not know
      *                                                           the morph model class name
      * @return  void
      */
@@ -438,7 +438,7 @@ class Builder extends IlluminateBuilder {
      * Add a mutation of the type 'many' to the query.
      *
      * @param string $holder
-     * @param \Vinelab\NeoEloquent\Eloquent\Model  $model
+     * @param \Sgpatil\Orientdb\Eloquent\Model  $model
      */
     public function addManyMutation($holder, Model $model)
     {
@@ -498,7 +498,7 @@ class Builder extends IlluminateBuilder {
      * Get the mutation model.
      *
      * @param  string $mutation
-     * @return Vinelab\NeoEloquent\Eloquent\Model
+     * @return Sgpatil\Orientdb\Eloquent\Model
      */
     public function getMutationModel($mutation)
     {
@@ -656,7 +656,7 @@ class Builder extends IlluminateBuilder {
      *
      * @param  array  $attributes
      * @param  array  $relations
-     * @return \Vinelab\NeoEloquent\Eloquent\Model
+     * @return \Sgpatil\Orientdb\Eloquent\Model
      */
     public function createWith(array $attributes, array $relations)
     {
@@ -782,7 +782,7 @@ class Builder extends IlluminateBuilder {
     /**
      * Prefix query bindings and wheres with the relation's model Node placeholder.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Builder $query
+     * @param  \Sgpatil\Orientdb\Eloquent\Builder $query
      * @param  string  $prefix
      * @return void
      */
@@ -794,7 +794,7 @@ class Builder extends IlluminateBuilder {
 
     /**
      * Prefix where clauses' columns.
-     * @param  \Vinelab\NeoEloquent\Eloquent\Builder $query
+     * @param  \Sgpatil\Orientdb\Eloquent\Builder $query
      * @param  string  $prefix
      * @return void
      */
@@ -825,7 +825,7 @@ class Builder extends IlluminateBuilder {
     /**
      * Get the match[In|Out] method name out of a relation.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Relations\* $relation
+     * @param  \Sgpatil\Orientdb\Eloquent\Relations\* $relation
      * @return [type]
      */
     protected function getMatchMethodName($relation)

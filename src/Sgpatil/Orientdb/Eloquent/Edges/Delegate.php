@@ -1,24 +1,24 @@
 <?php namespace Sgpatil\Orientdb\Eloquent\Edges;
 
-use Vinelab\NeoEloquent\Connection;
-use Vinelab\NeoEloquent\Eloquent\Model;
-use Vinelab\NeoEloquent\QueryException;
-use Vinelab\NeoEloquent\Eloquent\Builder;
-use Vinelab\NeoEloquent\UnknownDirectionException;
+use Sgpatil\Orientdb\Connection;
+use Sgpatil\Orientdb\Eloquent\Model;
+use Sgpatil\Orientdb\QueryException;
+use Sgpatil\Orientdb\Eloquent\Builder;
+use Sgpatil\Orientdb\UnknownDirectionException;
 
 abstract class Delegate {
 
      /**
      * The Eloquent builder instance.
      *
-     * @var \Vinelab\NeoEloquent\Eloquent\Builder
+     * @var \Sgpatil\Orientdb\Eloquent\Builder
      */
     protected $query;
 
     /**
      * The database connection.
      *
-     * @var \Vinelab\NeoEloquent\Connection
+     * @var \Sgpatil\Orientdb\Connection
      */
     protected $connection;
 
@@ -32,8 +32,8 @@ abstract class Delegate {
     /**
      * Create a new delegate instance.
      *
-     * @param \Vinelab\NeoEloquent\Eloquent\Builder $query
-     * @param \Vinelab\NeoEloquent\Eloquent\Model   $parent
+     * @param \Sgpatil\Orientdb\Eloquent\Builder $query
+     * @param \Sgpatil\Orientdb\Eloquent\Model   $parent
      */
     public function __construct(Builder $query)
     {
@@ -48,7 +48,7 @@ abstract class Delegate {
     /**
      * Get a new Finder instance.
      *
-     * @return \Vinelab\NeoEloquent\Eloquent\Edges\Finder
+     * @return \Sgpatil\Orientdb\Eloquent\Edges\Finder
      */
     public function newFinder()
     {
@@ -59,8 +59,8 @@ abstract class Delegate {
      * Make a new Relationship instance.
      *
      * @param  string $type
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $startModel
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $endModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $startModel
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $endModel
      * @param  array  $properties
      * @return \\Orientdb\Relationship
      */
@@ -89,7 +89,7 @@ abstract class Delegate {
      *
      * @return boolean
      *
-     * @throws  \Vinelab\NeoEloquent\QueryException If no open batch to commit.
+     * @throws  \Sgpatil\Orientdb\QueryException If no open batch to commit.
      */
     public function commitBatch()
     {
@@ -136,7 +136,7 @@ abstract class Delegate {
     /**
      * Convert a model to a Node object.
      *
-     * @param  \Vinelab\NeoEloquent\Eloquent\Model $model
+     * @param  \Sgpatil\Orientdb\Eloquent\Model $model
      * @return \\Orientdb\Node
      */
     public function asNode(Model $model)
@@ -163,7 +163,7 @@ abstract class Delegate {
     /**
      * Get the NeoEloquent connection for this relation.
      *
-     * @return \Vinelab\NeoEloquent\Connection
+     * @return \Sgpatil\Orientdb\Connection
      */
     public function getConnection()
     {
@@ -173,7 +173,7 @@ abstract class Delegate {
     /**
      * Set the database connection.
      *
-     * @param  \Vinelab\NeoEloquent\Connection  $name
+     * @param  \Sgpatil\Orientdb\Connection  $name
      * @return void
      */
     public function setConnection(Connection $connection)
