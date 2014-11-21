@@ -1,6 +1,7 @@
 {
-    "name": "sumit/orientdb",
-    "description": "Laravel Oriendb Driver",
+
+    "name": "sgpatil/orientdb",
+    "description": "Laravel Orientdb Driver",
     "license": "MIT",
     "authors": [
         {
