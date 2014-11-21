@@ -1,6 +1,9 @@
 <?php namespace Sgpatil\Orientdb\Query;
 
 use Closure;
+use Doctrine\OrientDB\Graph\Graph;
+use Doctrine\OrientDB\Graph\Vertex;
+use Doctrine\OrientDB\Query\Query;
 use Sgpatil\Orientdb\Connection;
 use Illuminadte\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Collection;
@@ -103,7 +106,14 @@ class Builder extends IlluminateQueryBuilder {
 	 */
     public function insertGetId(array $values, $sequence = null)
     {
-        // create a Orientdb Node
+        
+        $query = new Query();
+        
+$query->from(array('users'))->where('username = ?', "admin");
+
+
+        
+     
         $node = $this->client->makeNode();
 
         // set its properties
