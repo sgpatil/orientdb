@@ -1,8 +1,9 @@
 <?php
+
 namespace Sgpatil\Orientdb;
 
-use DateTime, Closure;
-
+use DateTime,
+    Closure;
 use Sgpatil\Orientdb\Query\Builder;
 use Sgpatil\Orientdb\QueryException;
 use Illuminate\Database\Connection as IlluminateConnection;
@@ -54,8 +55,7 @@ class Connection extends IlluminateConnection {
      *
      * @param array $config The database connection configuration
      */
-    public function __construct(array $config = array())
-    {
+    public function __construct(array $config = array()) {
 
         $this->config = $config;
 
@@ -69,9 +69,16 @@ class Connection extends IlluminateConnection {
      * @return 
      */
     public function createConnection() {
-        $parameters = BindingParameters::create('http://root:root@127.0.0.1:2424/graphdb2');
+        $parameters = BindingParameters::create($this->config);
         $orient = new Binding($parameters);
-        return $parameters;
+       // $output = $orient->execute("create vertex Rome set name = 'Luca'");
+        //  $output = $orient->createDatabase("Rome23", 'memory', 'graph');
+        //$output = $orient->postClass("Rome26");
+        //        foreach ($output->getResult() as $address) {
+        //            var_dump($address->name);
+        //        } echo "<br>";
+
+        return $orient;
     }
 
     /**
@@ -79,8 +86,7 @@ class Connection extends IlluminateConnection {
      *
      * @return 
      */
-    public function getClient()
-    {
+    public function getClient() {
         return $this->orient;
     }
 
@@ -90,19 +96,16 @@ class Connection extends IlluminateConnection {
      *
      * @param 
      */
-    public function setClient(NeoClient $client)
-    {
+    public function setClient(NeoClient $client) {
         $this->orient = $client;
     }
-
 
     /**
      * Get the connection host
      *
      * @return string
      */
-    public function getHost()
-    {
+    public function getHost() {
         return $this->getConfig('host', $this->defaults['host']);
     }
 
@@ -111,8 +114,7 @@ class Connection extends IlluminateConnection {
      *
      * @return int|string
      */
-    public function getPort()
-    {
+    public function getPort() {
         return $this->getConfig('port', $this->defaults['port']);
     }
 
@@ -120,8 +122,7 @@ class Connection extends IlluminateConnection {
      * Get the connection username
      * @return int|string
      */
-    public function getUsername()
-    {
+    public function getUsername() {
         return $this->getConfig('username', $this->defaults['username']);
     }
 
@@ -129,8 +130,7 @@ class Connection extends IlluminateConnection {
      * Get the connection password
      * @return int|strings
      */
-    public function getPassword()
-    {
+    public function getPassword() {
         return $this->getConfig('password', $this->defaults['password']);
     }
 
@@ -141,8 +141,7 @@ class Connection extends IlluminateConnection {
      * @param  mixed    $default
      * @return mixed
      */
-    public function getConfig($option, $default = null)
-    {
+    public function getConfig($option, $default = null) {
         return array_get($this->config, $option, $default);
     }
 
@@ -151,8 +150,7 @@ class Connection extends IlluminateConnection {
      *
      * @return string
      */
-    public function getDriverName()
-    {
+    public function getDriverName() {
         return $this->driverName;
     }
 
@@ -163,19 +161,18 @@ class Connection extends IlluminateConnection {
      * @param  array   $bindings
      * @return array
      */
-    public function select($query, $bindings = array())
-    {
-        return $this->run($query, $bindings, function(self $me, $query, array $bindings)
-        {
-            if ($me->pretending()) return array();
+    public function select($query, $bindings = array()) {
+        return $this->run($query, $bindings, function(self $me, $query, array $bindings) {
+                    if ($me->pretending())
+                        return array();
 
-            // For select statements, we'll simply execute the query and return an array
-            // of the database result set. Each element in the array will be a single
-            // node from the database, and will either be an array or objects.
-            $statement = $me->getCypherQuery($query, $bindings);
+                    // For select statements, we'll simply execute the query and return an array
+                    // of the database result set. Each element in the array will be a single
+                    // node from the database, and will either be an array or objects.
+                    $statement = $me->getCypherQuery($query, $bindings);
 
-            return $statement->getResultSet();
-        });
+                    return $statement->getResultSet();
+                });
     }
 
     /**
@@ -185,19 +182,18 @@ class Connection extends IlluminateConnection {
      * @param  array   $bindings
      * @return int
      */
-    public function affectingStatement($query, $bindings = array())
-    {
-        return $this->run($query, $bindings, function(self $me, $query, array $bindings)
-        {
-            if ($me->pretending()) return 0;
+    public function affectingStatement($query, $bindings = array()) {
+        return $this->run($query, $bindings, function(self $me, $query, array $bindings) {
+                    if ($me->pretending())
+                        return 0;
 
-            // For update or delete statements, we want to get the number of rows affected
-            // by the statement and return that back to the developer. We'll first need
-            // to execute the statement and then we'll use CypherQuery to fetch the affected.
-            $statement = $me->getCypherQuery($query, $bindings);
+                    // For update or delete statements, we want to get the number of rows affected
+                    // by the statement and return that back to the developer. We'll first need
+                    // to execute the statement and then we'll use CypherQuery to fetch the affected.
+                    $statement = $me->getCypherQuery($query, $bindings);
 
-            return $statement->getResultSet();
-        });
+                    return $statement->getResultSet();
+                });
     }
 
     /**
@@ -207,18 +203,17 @@ class Connection extends IlluminateConnection {
      * @param  array   $bindings
      * @return 
      */
-    public function statement($query, $bindings = array(), $rawResults = false)
-    {
-        return $this->run($query, $bindings, function(self $me, $query, array $bindings) use($rawResults)
-        {
-            if ($me->pretending()) return true;
+    public function statement($query, $bindings = array(), $rawResults = false) {
+        return $this->run($query, $bindings, function(self $me, $query, array $bindings) use($rawResults) {
+                    if ($me->pretending())
+                        return true;
 
-            $statement = $me->getCypherQuery($query, $bindings);
+                    $statement = $me->getCypherQuery($query, $bindings);
 
-            $result = $statement->getResultSet();
+                    $result = $statement->getResultSet();
 
-            return ($rawResults === true) ? $result : $result instanceof ResultSet;
-        });
+                    return ($rawResults === true) ? $result : $result instanceof ResultSet;
+                });
     }
 
     /**
@@ -228,8 +223,7 @@ class Connection extends IlluminateConnection {
      * @param  string  $query
      * @param  array  $bindings
      */
-    public function getCypherQuery($query, array $bindings)
-    {
+    public function getCypherQuery($query, array $bindings) {
         return new CypherQuery($this->getClient(), $query, $this->prepareBindings($bindings));
     }
 
@@ -239,14 +233,12 @@ class Connection extends IlluminateConnection {
      * @param  array  $bindings
      * @return array
      */
-    public function prepareBindings(array $bindings)
-    {
+    public function prepareBindings(array $bindings) {
         $grammar = $this->getQueryGrammar();
 
         $prepared = array();
 
-        foreach ($bindings as $key => $binding)
-        {
+        foreach ($bindings as $key => $binding) {
             // The bindings are collected in a little bit different way than
             // Eloquent, we will need the key name in order to know where to replace
             // the value using the Orientdb client.
@@ -254,8 +246,7 @@ class Connection extends IlluminateConnection {
 
             // We need to get the array value of the binding
             // if it were mapped
-            if (is_array($value))
-            {
+            if (is_array($value)) {
                 // There are different ways to handle multiple
                 // bindings vs. single bindings as values.
                 $value = array_values($value);
@@ -265,8 +256,7 @@ class Connection extends IlluminateConnection {
             // date string. Each query grammar maintains its own date string format
             // so we'll just ask the grammar for the format to get from the date.
 
-            if ($value instanceof DateTime)
-            {
+            if ($value instanceof DateTime) {
                 $binding = $value->format($grammar->getDateFormat());
             }
 
@@ -278,21 +268,19 @@ class Connection extends IlluminateConnection {
             // will not accept replacing "id(n)" with a value
             // which have been previously processed by the grammar
             // to be _nodeId instead.
-            if ( ! is_array($binding))
-            {
+            if (!is_array($binding)) {
                 $binding = [$binding];
             }
 
-            foreach ($binding as $property => $real)
-            {
+            foreach ($binding as $property => $real) {
                 // We should not pass any numeric key-value items since the Orientdb client expects
                 // a JSON map parameters.
-                if (is_numeric($property))
-                {
-                    $property = (! is_numeric($key)) ? $key : 'id';
+                if (is_numeric($property)) {
+                    $property = (!is_numeric($key)) ? $key : 'id';
                 }
 
-                if ($property == 'id') $property = $grammar->getIdReplacement($property);
+                if ($property == 'id')
+                    $property = $grammar->getIdReplacement($property);
 
                 $prepared[$property] = $real;
             }
@@ -306,10 +294,8 @@ class Connection extends IlluminateConnection {
      *
      * @return \Sgpatil\Orientdb\Query\Grammars\CypherGrammar
      */
-    public function getQueryGrammar()
-    {
-        if ( ! $this->queryGrammar)
-        {
+    public function getQueryGrammar() {
+        if (!$this->queryGrammar) {
             $this->useDefaultQueryGrammar();
         }
 
@@ -321,8 +307,7 @@ class Connection extends IlluminateConnection {
      *
      * @return \Sgpatil\Orientdb\Query\Grammars\CypherGrammar
      */
-    protected function getDefaultQueryGrammar()
-    {
+    protected function getDefaultQueryGrammar() {
         return new Query\Grammars\CypherGrammar;
     }
 
@@ -335,14 +320,12 @@ class Connection extends IlluminateConnection {
      * @param  array $binding
      * @return boolean
      */
-    public function isBinding(array $binding)
-    {
-        if ( ! empty($binding))
-        {
+    public function isBinding(array $binding) {
+        if (!empty($binding)) {
             // A binding is valid only when the key is not a number
             $keys = array_keys($binding);
 
-            return ! is_numeric(reset($keys));
+            return !is_numeric(reset($keys));
         }
 
         return false;
@@ -353,12 +336,10 @@ class Connection extends IlluminateConnection {
      *
      * @return void
      */
-    public function beginTransaction()
-    {
+    public function beginTransaction() {
         ++$this->transactions;
 
-        if ($this->transactions == 1)
-        {
+        if ($this->transactions == 1) {
             $this->transaction = $this->orient->beginTransaction();
         }
 
@@ -370,9 +351,9 @@ class Connection extends IlluminateConnection {
      *
      * @return void
      */
-    public function commit()
-    {
-        if ($this->transactions == 1) $this->transaction->commit();
+    public function commit() {
+        if ($this->transactions == 1)
+            $this->transaction->commit();
 
         --$this->transactions;
 
@@ -384,16 +365,12 @@ class Connection extends IlluminateConnection {
      *
      * @return void
      */
-    public function rollBack()
-    {
-        if ($this->transactions == 1)
-        {
+    public function rollBack() {
+        if ($this->transactions == 1) {
             $this->transactions = 0;
 
             $this->transaction->rollBack();
-        }
-        else
-        {
+        } else {
             --$this->transactions;
         }
 
@@ -407,8 +384,7 @@ class Connection extends IlluminateConnection {
      * @param  string  $table
      * @return \Sgpatil\Orientdb\Query\Builder
      */
-    public function table($table)
-    {
+    public function table($table) {
         $query = new Builder($this, $this->getQueryGrammar());
 
         return $query->from($table);
@@ -424,23 +400,20 @@ class Connection extends IlluminateConnection {
      *
      * @throws QueryException
      */
-    protected function run($query, $bindings, Closure $callback)
-    {
+    protected function run($query, $bindings, Closure $callback) {
         $start = microtime(true);
 
         // To execute the statement, we'll simply call the callback, which will actually
         // run the Cypher against the Orientdb connection. Then we can calculate the time it
         // took to execute and log the query Cypher, bindings and time in our memory.
-        try
-        {
+        try {
             $result = $callback($this, $query, $bindings);
         }
 
-            // If an exception occurs when attempting to run a query, we'll format the error
-            // message to include the bindings with Cypher, which will make this exception a
-            // lot more helpful to the developer instead of just the database's errors.
-        catch (\Exception $e)
-        {
+        // If an exception occurs when attempting to run a query, we'll format the error
+        // message to include the bindings with Cypher, which will make this exception a
+        // lot more helpful to the developer instead of just the database's errors.
+        catch (\Exception $e) {
             throw new QueryException($query, $bindings, $e);
         }
 

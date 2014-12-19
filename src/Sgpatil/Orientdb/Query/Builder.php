@@ -1,4 +1,6 @@
-<?php namespace Sgpatil\Orientdb\Query;
+<?php
+
+namespace Sgpatil\Orientdb\Query;
 
 use Closure;
 use Doctrine\OrientDB\Graph\Graph;
@@ -9,6 +11,8 @@ use Illuminadte\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Collection;
 use Sgpatil\Orientdb\Query\Grammars\Grammar;
 use Illuminate\Database\Query\Builder as IlluminateQueryBuilder;
+use Doctrine\OrientDB\Binding\HttpBinding as Binding;
+use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 
 class Builder extends IlluminateQueryBuilder {
 
@@ -46,25 +50,25 @@ class Builder extends IlluminateQueryBuilder {
      * @var array
      */
     protected $bindings = array(
-        'matches'=> [],
+        'matches' => [],
         'select' => [],
-        'join'   => [],
-        'where'  => [],
+        'join' => [],
+        'where' => [],
         'having' => [],
-        'order'  => []
+        'order' => []
     );
 
     /**
-	 * All of the available clause operators.
-	 *
-	 * @var array
-	 */
+     * All of the available clause operators.
+     *
+     * @var array
+     */
     protected $operators = array(
-        '+', '-', '*', '/', '%', '^',    // Mathematical
+        '+', '-', '*', '/', '%', '^', // Mathematical
         '=', '<>', '<', '>', '<=', '>=', // Comparison
         'IS NULL', 'IS NOT NULL',
-        'AND', 'OR', 'XOR', 'NOT',       // Boolean
-        'IN, [x], [x .. y]',             // Collection
+        'AND', 'OR', 'XOR', 'NOT', // Boolean
+        'IN, [x], [x .. y]', // Collection
         '=~'                             // Regular Expression
     );
 
@@ -74,8 +78,7 @@ class Builder extends IlluminateQueryBuilder {
      * @param Sgpatil\Orientdb\Connection $connection
      * @return void
      */
-    public function __construct(Connection $connection, Grammar $grammar)
-    {
+    public function __construct(Connection $connection, Grammar $grammar) {
         $this->grammar = $grammar;
         $this->grammar->setQuery($this);
 
@@ -85,40 +88,45 @@ class Builder extends IlluminateQueryBuilder {
     }
 
     /**
-	 * Set the node's label which the query is targeting.
-	 *
-	 * @param  string  $label
-	 * @return \Sgpatil\Orientdb\Query\Builder|static
-	 */
-    public function from($label)
-    {
+     * Set the node's label which the query is targeting.
+     *
+     * @param  string  $label
+     * @return \Sgpatil\Orientdb\Query\Builder|static
+     */
+    public function from($label) {
         $this->from = $label;
 
         return $this;
     }
 
     /**
-	 * Insert a new record and get the value of the primary key.
-	 *
-	 * @param  array   $values
-	 * @param  string  $sequence
-	 * @return int
-	 */
-    public function insertGetId(array $values, $sequence = null)
-    {
-        
+     * Insert a new record and get the value of the primary key.
+     *
+     * @param  array   $values
+     * @param  string  $sequence
+     * @return int
+     */
+    public function insertGetId(array $values, $sequence = null) {
+
         $query = new Query();
-        
-$query->from(array('users'))->where('username = ?', "admin");
+
+        $query->from(array('users'))->where('username = ?', "admin");
+        print_r($this->from);
+print_r($values);
+dd($this->client);
+        exit('config param');
+        $output = $orient->query("create class Student");
 
 
-        
-     
-        $node = $this->client->makeNode();
 
+        $rome = new Vertex('Rome');
+        dd($rome);
+        //$node = $this->client->makeNode();
+
+        print_r($values);
+        exit;
         // set its properties
-        foreach ($values as $key => $value)
-        {
+        foreach ($values as $key => $value) {
             $node->setProperty($key, $value);
         }
 
@@ -140,8 +148,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array  $values
      * @return int
      */
-    public function update(array $values)
-    {
+    public function update(array $values) {
         $cypher = $this->grammar->compileUpdate($this, $values);
 
         $bindings = $this->getBindingsMergedWithValues($values);
@@ -159,13 +166,11 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array $values
      * @return array
      */
-    protected function getBindingsMergedWithValues(array $values)
-    {
+    protected function getBindingsMergedWithValues(array $values) {
         $bindings = [];
 
-        foreach ($values as $key => $value)
-        {
-            $bindings[$key .'_update'] = $value;
+        foreach ($values as $key => $value) {
+            $bindings[$key . '_update'] = $value;
         }
 
         return array_merge($this->getBindings(), $bindings);
@@ -177,21 +182,17 @@ $query->from(array('users'))->where('username = ?', "admin");
      *
      * @return array
      */
-    public function getBindings()
-    {
+    public function getBindings() {
         $bindings = [];
 
         // We will run through all the bindings and pluck out
         // the component (select, where, etc.)
-        foreach($this->bindings as $component => $binding)
-        {
-            if ( ! empty($binding))
-            {
+        foreach ($this->bindings as $component => $binding) {
+            if (!empty($binding)) {
                 // For every binding there could be multiple
                 // values set so we need to add all of them as
                 // flat $key => $value item in our $bindings.
-                foreach ($binding as $key => $value)
-                {
+                foreach ($binding as $key => $value) {
                     $bindings[$key] = $value;
                 }
             }
@@ -201,97 +202,85 @@ $query->from(array('users'))->where('username = ?', "admin");
     }
 
     /**
-	 * Add a basic where clause to the query.
-	 *
-	 * @param  string  $column
-	 * @param  string  $operator
-	 * @param  mixed   $value
-	 * @param  string  $boolean
-	 * @return \Illuminate\Database\Query\Builder|static
-	 *
-	 * @throws \InvalidArgumentException
-	 */
-	public function where($column, $operator = null, $value = null, $boolean = 'and')
-	{
+     * Add a basic where clause to the query.
+     *
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  mixed   $value
+     * @param  string  $boolean
+     * @return \Illuminate\Database\Query\Builder|static
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function where($column, $operator = null, $value = null, $boolean = 'and') {
         // If the column is an array, we will assume it is an array of key-value pairs
-		// and can add them each as a where clause. We will maintain the boolean we
-		// received when the method was called and pass it into the nested where.
-		if (is_array($column))
-		{
-			return $this->whereNested(function(IlluminateQueryBuilder $query) use ($column)
-			{
-				foreach ($column as $key => $value)
-				{
-					$query->where($key, '=', $value);
-				}
-			}, $boolean);
-		}
+        // and can add them each as a where clause. We will maintain the boolean we
+        // received when the method was called and pass it into the nested where.
+        if (is_array($column)) {
+            return $this->whereNested(function(IlluminateQueryBuilder $query) use ($column) {
+                        foreach ($column as $key => $value) {
+                            $query->where($key, '=', $value);
+                        }
+                    }, $boolean);
+        }
 
-		if (func_num_args() == 2)
-		{
-			list($value, $operator) = array($operator, '=');
-		}
-		elseif ($this->invalidOperatorAndValue($operator, $value))
-		{
-			throw new \InvalidArgumentException("Value must be provided.");
-		}
+        if (func_num_args() == 2) {
+            list($value, $operator) = array($operator, '=');
+        } elseif ($this->invalidOperatorAndValue($operator, $value)) {
+            throw new \InvalidArgumentException("Value must be provided.");
+        }
 
-		// If the columns is actually a Closure instance, we will assume the developer
-		// wants to begin a nested where statement which is wrapped in parenthesis.
-		// We'll add that Closure to the query then return back out immediately.
-		if ($column instanceof Closure)
-		{
-			return $this->whereNested($column, $boolean);
-		}
+        // If the columns is actually a Closure instance, we will assume the developer
+        // wants to begin a nested where statement which is wrapped in parenthesis.
+        // We'll add that Closure to the query then return back out immediately.
+        if ($column instanceof Closure) {
+            return $this->whereNested($column, $boolean);
+        }
 
-		// If the given operator is not found in the list of valid operators we will
-		// assume that the developer is just short-cutting the '=' operators and
-		// we will set the operators to '=' and set the values appropriately.
-		if ( ! in_array(mb_strtolower($operator), $this->operators, true))
-		{
-			list($value, $operator) = array($operator, '=');
-		}
+        // If the given operator is not found in the list of valid operators we will
+        // assume that the developer is just short-cutting the '=' operators and
+        // we will set the operators to '=' and set the values appropriately.
+        if (!in_array(mb_strtolower($operator), $this->operators, true)) {
+            list($value, $operator) = array($operator, '=');
+        }
 
-		// If the value is a Closure, it means the developer is performing an entire
-		// sub-select within the query and we will need to compile the sub-select
-		// within the where clause to get the appropriate query record results.
-		if ($value instanceof Closure)
-		{
-			return $this->whereSub($column, $operator, $value, $boolean);
-		}
+        // If the value is a Closure, it means the developer is performing an entire
+        // sub-select within the query and we will need to compile the sub-select
+        // within the where clause to get the appropriate query record results.
+        if ($value instanceof Closure) {
+            return $this->whereSub($column, $operator, $value, $boolean);
+        }
 
-		// If the value is "null", we will just assume the developer wants to add a
-		// where null clause to the query. So, we will allow a short-cut here to
-		// that method for convenience so the developer doesn't have to check.
-		if (is_null($value))
-		{
-			return $this->whereNull($column, $boolean, $operator != '=');
-		}
+        // If the value is "null", we will just assume the developer wants to add a
+        // where null clause to the query. So, we will allow a short-cut here to
+        // that method for convenience so the developer doesn't have to check.
+        if (is_null($value)) {
+            return $this->whereNull($column, $boolean, $operator != '=');
+        }
 
-		// Now that we are working with just a simple query we can put the elements
-		// in our array and add the query binding to our array of bindings that
-		// will be bound to each SQL statements when it is finally executed.
-		$type = 'Basic';
+        // Now that we are working with just a simple query we can put the elements
+        // in our array and add the query binding to our array of bindings that
+        // will be bound to each SQL statements when it is finally executed.
+        $type = 'Basic';
 
         $property = $column;
 
         // When the column is an id we need to treat it as a graph db id and transform it
         // into the form of id(n) and the typecast the value into int.
-        if ($column == 'id')
-        {
-            $column = 'id('. $this->modelAsNode() .')';
+        if ($column == 'id') {
+            $column = 'id(' . $this->modelAsNode() . ')';
             $value = intval($value);
         }
         // When it's been already passed in the form of NodeLabel.id we'll have to
         // re-format it into id(NodeLabel)
-        elseif (preg_match('/^.*\.id$/', $column))
-        {
+        elseif (preg_match('/^.*\.id$/', $column)) {
             $parts = explode('.', $column);
             $column = sprintf('%s(%s)', $parts[1], $parts[0]);
             $value = intval($value);
         }
         // Also if the $column is already a form of id(n) we'd have to type-cast the value into int.
-        elseif (preg_match('/^id\(.*\)$/', $column)) $value = intval($value);
+        elseif (preg_match('/^id\(.*\)$/', $column))
+            $value = intval($value);
 
         $binding = $this->prepareBindingColumn($column);
 
@@ -299,13 +288,12 @@ $query->from(array('users'))->where('username = ?', "admin");
 
         $property = $this->wrap($binding);
 
-        if ( ! $value instanceof Expression)
-        {
-			$this->addBinding([$property => $value], 'where');
-		}
+        if (!$value instanceof Expression) {
+            $this->addBinding([$property => $value], 'where');
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Increment the value of an existing column on a where clause.
@@ -314,10 +302,9 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return string
      */
-    protected function prepareBindingColumn($column)
-    {
+    protected function prepareBindingColumn($column) {
         $count = $this->columnCountForWhereClause($column);
-        return ($count > 0) ? $column .'_'. ($count + 1) : $column;
+        return ($count > 0) ? $column . '_' . ($count + 1) : $column;
     }
 
     /**
@@ -326,12 +313,11 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return int
      */
-    protected function columnCountForWhereClause($column)
-    {
+    protected function columnCountForWhereClause($column) {
         if (is_array($this->wheres))
             return count(array_filter($this->wheres, function($where) use($column) {
-                return $where['column'] == $column;
-            }));
+                        return $where['column'] == $column;
+                    }));
     }
 
     /**
@@ -343,21 +329,20 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  bool    $not
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function whereIn($column, $values, $boolean = 'and', $not = false)
-    {
+    public function whereIn($column, $values, $boolean = 'and', $not = false) {
         $type = $not ? 'NotIn' : 'In';
 
         // If the value of the where in clause is actually a Closure, we will assume that
         // the developer is using a full sub-select for this "in" statement, and will
         // execute those Closures, then we can re-construct the entire sub-selects.
-        if ($values instanceof Closure)
-        {
+        if ($values instanceof Closure) {
             return $this->whereInSub($column, $values, $boolean, $not);
         }
 
         $property = $column;
 
-        if ($column == 'id') $column = 'id('. $this->modelAsNode() .')';
+        if ($column == 'id')
+            $column = 'id(' . $this->modelAsNode() . ')';
 
         $this->wheres[] = compact('type', 'column', 'values', 'boolean');
 
@@ -377,13 +362,13 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  bool  $not
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function whereBetween($column, array $values, $boolean = 'and', $not = false)
-    {
+    public function whereBetween($column, array $values, $boolean = 'and', $not = false) {
         $type = 'between';
 
         $property = $column;
 
-        if ($column == 'id') $column = 'id('. $this->modelAsNode() .')';
+        if ($column == 'id')
+            $column = 'id(' . $this->modelAsNode() . ')';
 
         $this->wheres[] = compact('column', 'type', 'boolean', 'not');
 
@@ -400,11 +385,11 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  bool    $not
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function whereNull($column, $boolean = 'and', $not = false)
-    {
+    public function whereNull($column, $boolean = 'and', $not = false) {
         $type = $not ? 'NotNull' : 'Null';
 
-        if ($column == 'id') $column = 'id('. $this->modelAsNode() .')';
+        if ($column == 'id')
+            $column = 'id(' . $this->modelAsNode() . ')';
 
         $binding = $this->prepareBindingColumn($column);
 
@@ -422,8 +407,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $boolean
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public function whereCarried($column, $operator = null, $value = null, $boolean = 'and')
-    {
+    public function whereCarried($column, $operator = null, $value = null, $boolean = 'and') {
         $type = 'Carried';
 
         $this->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
@@ -437,10 +421,8 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array  $parts
      * @return \Sgpatil\Orientdb\Query\Builder|static
      */
-    public function with(array $parts)
-    {
-        foreach ($parts as $key => $part)
-        {
+    public function with(array $parts) {
+        foreach ($parts as $key => $part) {
             $this->with[$key] = $part;
         }
 
@@ -453,24 +435,21 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array  $values
      * @return bool
      */
-    public function insert(array $values)
-    {
+    public function insert(array $values) {
         // Since every insert gets treated like a batch insert, we will make sure the
         // bindings are structured in a way that is convenient for building these
         // inserts statements by verifying the elements are actually an array.
-        if ( ! is_array(reset($values)))
-        {
+        if (!is_array(reset($values))) {
             $values = array($values);
         }
 
         // Since every insert gets treated like a batch insert, we will make sure the
         // bindings are structured in a way that is convenient for building these
         // inserts statements by verifying the elements are actually an array.
-        else
-        {
-            foreach ($values as $key => $value)
-            {
-                ksort($value); $values[$key] = $value;
+        else {
+            foreach ($values as $key => $value) {
+                ksort($value);
+                $values[$key] = $value;
             }
         }
 
@@ -479,8 +458,7 @@ $query->from(array('users'))->where('username = ?', "admin");
         // easier on the grammars to just handle one type of record insertion.
         $bindings = array();
 
-        foreach ($values as $record)
-        {
+        foreach ($values as $record) {
             $bindings[] = $record;
         }
 
@@ -501,8 +479,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array  $related
      * @return \Sgpatil\Orientdb\Eloquent\Model
      */
-    public function createWith(array $model, array $related)
-    {
+    public function createWith(array $model, array $related) {
         $cypher = $this->grammar->compileCreateWith($this, compact('model', 'related'));
 
         // Indicate that we need the result returned as is.
@@ -511,35 +488,33 @@ $query->from(array('users'))->where('username = ?', "admin");
     }
 
     /**
-	 * Execute the query as a fresh "select" statement.
-	 *
-	 * @param  array  $columns
-	 * @return array|static[]
-	 */
-	public function getFresh($columns = array('*'))
-	{
-		if (is_null($this->columns)) $this->columns = $columns;
+     * Execute the query as a fresh "select" statement.
+     *
+     * @param  array  $columns
+     * @return array|static[]
+     */
+    public function getFresh($columns = array('*')) {
+        if (is_null($this->columns))
+            $this->columns = $columns;
 
         return $this->runSelect();
-	}
-
-	/**
-	 * Run the query as a "select" statement against the connection.
-	 *
-	 * @return array
-	 */
-	protected function runSelect()
-	{
-		return $this->connection->select($this->toCypher(), $this->getBindings());
-	}
+    }
 
     /**
-	 * Get the Cypher representation of the traversal.
-	 *
-	 * @return string
-	 */
-    public function toCypher()
-    {
+     * Run the query as a "select" statement against the connection.
+     *
+     * @return array
+     */
+    protected function runSelect() {
+        return $this->connection->select($this->toCypher(), $this->getBindings());
+    }
+
+    /**
+     * Get the Cypher representation of the traversal.
+     *
+     * @return string
+     */
+    public function toCypher() {
         return $this->grammar->compileSelect($this);
     }
 
@@ -555,23 +530,22 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $direction Possible values are in, out and in-out
      * @return \Sgpatil\Orientdb\Query\Builder|static
      */
-    public function matchRelation($parent, $related, $relatedNode, $relationship, $property, $value = null, $direction = 'out')
-    {
-        $parentLabels  = $parent->getTable();
+    public function matchRelation($parent, $related, $relatedNode, $relationship, $property, $value = null, $direction = 'out') {
+        $parentLabels = $parent->getTable();
         $relatedLabels = $related->getTable();
-        $parentNode    = $this->modelAsNode($parentLabels);
+        $parentNode = $this->modelAsNode($parentLabels);
 
         $this->matches[] = array(
-            'type'         => 'Relation',
-            'property'     => $property,
-            'direction'    => $direction,
+            'type' => 'Relation',
+            'property' => $property,
+            'direction' => $direction,
             'relationship' => $relationship,
             'parent' => array(
-                'node'   => $parentNode,
+                'node' => $parentNode,
                 'labels' => $parentLabels
             ),
             'related' => array(
-                'node'   => $relatedNode,
+                'node' => $relatedNode,
                 'labels' => $relatedLabels
             )
         );
@@ -581,18 +555,17 @@ $query->from(array('users'))->where('username = ?', "admin");
         return $this;
     }
 
-    public function matchMorphRelation($parent, $relatedNode, $property, $value = null, $direction = 'out')
-    {
+    public function matchMorphRelation($parent, $relatedNode, $property, $value = null, $direction = 'out') {
         $parentLabels = $parent->getTable();
         $parentNode = $this->modelAsNode($parentLabels);
 
         $this->matches[] = array(
-            'type'      => 'MorphTo',
-            'property'  => $property,
+            'type' => 'MorphTo',
+            'property' => $property,
             'direction' => $direction,
-            'related'   => array('node' => $relatedNode),
-            'parent'    => array(
-                'node'   => $parentNode,
+            'related' => array('node' => $relatedNode),
+            'parent' => array(
+                'node' => $parentNode,
                 'labels' => $parentLabels
             )
         );
@@ -610,8 +583,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return mixed
      */
-    public function percentileDisc($column, $percentile = 0.0)
-    {
+    public function percentileDisc($column, $percentile = 0.0) {
         return $this->aggregate(__FUNCTION__, array($column), $percentile);
     }
 
@@ -624,8 +596,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return mixed
      */
-    public function percentileCont($column, $percentile = 0.0)
-    {
+    public function percentileCont($column, $percentile = 0.0) {
         return $this->aggregate(__FUNCTION__, array($column), $percentile);
     }
 
@@ -635,8 +606,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return mixed
      */
-    public function stdev($column)
-    {
+    public function stdev($column) {
         return $this->aggregate(__FUNCTION__, array($column));
     }
 
@@ -646,8 +616,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return mixed
      */
-    public function stdevp($column)
-    {
+    public function stdevp($column) {
         return $this->aggregate(__FUNCTION__, array($column));
     }
 
@@ -657,14 +626,12 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function collect($column)
-    {
+    public function collect($column) {
         $row = $this->aggregate(__FUNCTION__, array($column));
 
         $collected = [];
 
-        foreach ($row as $value)
-        {
+        foreach ($row as $value) {
             $collected[] = $value;
         }
 
@@ -677,8 +644,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string $column
      * @return int
      */
-    public function countDistinct($column)
-    {
+    public function countDistinct($column) {
         return (int) $this->aggregate(__FUNCTION__, array($column));
     }
 
@@ -689,11 +655,10 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array   $columns
      * @return mixed
      */
-    public function aggregate($function, $columns = array('*'), $percentile = null)
-    {
+    public function aggregate($function, $columns = array('*'), $percentile = null) {
         $this->aggregate = array_merge([
             'label' => $this->from
-        ], compact('function', 'columns', 'percentile'));
+                ], compact('function', 'columns', 'percentile'));
 
         $previousColumns = $this->columns;
 
@@ -706,8 +671,7 @@ $query->from(array('users'))->where('username = ?', "admin");
 
         $this->columns = $previousColumns;
 
-        if ($results->valid())
-        {
+        if ($results->valid()) {
             return $results->current()[0];
         }
     }
@@ -719,14 +683,11 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  string  $type
      * @return \Illuminate\Database\Query\Builder
      */
-    public function addBinding($value, $type = 'where')
-    {
-        if (is_array($value))
-        {
+    public function addBinding($value, $type = 'where') {
+        if (is_array($value)) {
             $key = array_keys($value)[0];
 
-            if (strpos($key, '.') !== false)
-            {
+            if (strpos($key, '.') !== false) {
                 $binding = $value[$key];
                 unset($value[$key]);
                 $key = explode('.', $key)[1];
@@ -734,17 +695,13 @@ $query->from(array('users'))->where('username = ?', "admin");
             }
         }
 
-        if ( ! array_key_exists($type, $this->bindings))
-        {
+        if (!array_key_exists($type, $this->bindings)) {
             throw new \InvalidArgumentException("Invalid binding type: {$type}.");
         }
 
-        if (is_array($value))
-        {
+        if (is_array($value)) {
             $this->bindings[$type] = array_merge($this->bindings[$type], $value);
-        }
-        else
-        {
+        } else {
             $this->bindings[$type][] = $value;
         }
 
@@ -757,8 +714,7 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param   string  $label
      * @return \Orientdb\Label
      */
-    public function makeLabel($label)
-    {
+    public function makeLabel($label) {
         return $this->client->makeLabel($label);
     }
 
@@ -773,9 +729,8 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array $labels
      * @return string
      */
-    public function modelAsNode(array $labels = null)
-    {
-        $labels = ( ! is_null($labels)) ? $labels : $this->from;
+    public function modelAsNode(array $labels = null) {
+        $labels = (!is_null($labels)) ? $labels : $this->from;
 
         return $this->grammar->modelAsNode($labels);
     }
@@ -787,25 +742,23 @@ $query->from(array('users'))->where('username = ?', "admin");
      * @param  array  $bindings
      * @return void
      */
-    public function mergeWheres($wheres, $bindings)
-    {
+    public function mergeWheres($wheres, $bindings) {
         $this->wheres = array_merge((array) $this->wheres, (array) $wheres);
 
         $this->bindings['where'] = array_merge_recursive($this->bindings['where'], (array) $bindings);
     }
 
-    public function wrap($property)
-    {
+    public function wrap($property) {
         return $this->grammar->getIdReplacement($property);
     }
 
-	/**
-	 * Get a new instance of the query builder.
-	 *
-	 * @return \Illuminate\Database\Query\Builder
-	 */
-	public function newQuery()
-	{
-		return new Builder($this->connection, $this->grammar);
-	}
+    /**
+     * Get a new instance of the query builder.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function newQuery() {
+        return new Builder($this->connection, $this->grammar);
+    }
+
 }
