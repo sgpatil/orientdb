@@ -108,6 +108,7 @@ class Builder extends IlluminateQueryBuilder {
      */
     public function insertGetId(array $values, $sequence = null) {
 
+        exit('checking');
         $query = new Query();
 
         $query->from(array('users'))->where('username = ?', "admin");

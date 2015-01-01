@@ -584,7 +584,7 @@ class Builder extends IlluminateBuilder {
      * @param  \Closure  $callback
      * @return \Illuminate\Database\Eloquent\Builder|static
      */
-    public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', $callback = null)
+    public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', Closure $callback = null)
     {
         $relation = $this->getHasRelationQuery($relation);
 
