@@ -14,6 +14,8 @@ use Illuminate\Database\Query\Builder as IlluminateQueryBuilder;
 use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 
+
+
 class Builder extends IlluminateQueryBuilder {
 
     /**
@@ -85,6 +87,8 @@ class Builder extends IlluminateQueryBuilder {
         $this->connection = $connection;
 
         $this->client = $connection->getClient();
+        
+        
     }
 
     /**
@@ -108,13 +112,32 @@ class Builder extends IlluminateQueryBuilder {
      */
     public function insertGetId(array $values, $sequence = null) {
 
-        exit('checking');
+         // create a neo4j Node
+        $node = $this->client->makeClass();
+
+        // set its properties
+        foreach ($values as $key => $value)
+        {
+            $node->setProperty($key, $value);
+        }
+
+        // save the node
+        $node->save();
+exit('checking');
+        // get the saved node id
+        $id = $node->getId();
+
+        // set the labels
+        $node->addLabels(array_map(array($this, 'makeLabel'), $this->from));
+
+        return $id;
+
         $query = new Query();
 
         $query->from(array('users'))->where('username = ?', "admin");
         print_r($this->from);
-print_r($values);
-dd($this->client);
+        print_r($values);
+        dd($this->client);
         exit('config param');
         $output = $orient->query("create class Student");
 
@@ -760,6 +783,23 @@ dd($this->client);
      */
     public function newQuery() {
         return new Builder($this->connection, $this->grammar);
+    }
+    
+    
+    /**
+     * Insert a new record and get the value of the primary key.
+     *
+     * @param  array   $values
+     * @param  string  $sequence
+     * @return int
+     */
+    public function createClass() {
+
+         // create a neo4j Node
+        $node = $this->client->makeClass();
+        // save the node
+        $node->save();
+        
     }
 
 }

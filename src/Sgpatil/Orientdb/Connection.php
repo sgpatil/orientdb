@@ -12,6 +12,7 @@ use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 use Doctrine\DBAL\DriverManager;
 
+use Everyman\Neo4j\Client as OriClient;
 /**
  * Description of Connection
  *
@@ -69,16 +70,17 @@ class Connection extends IlluminateConnection {
      * @return 
      */
     public function createConnection() {
+        
+        //exit('testing');
+        /*
+        // below code is used to create connection usinf Orientdb-odm
         $parameters = BindingParameters::create($this->config);
         $orient = new Binding($parameters);
-       // $output = $orient->execute("create vertex Rome set name = 'Luca'");
-        //  $output = $orient->createDatabase("Rome23", 'memory', 'graph');
-        //$output = $orient->postClass("Rome26");
-        //        foreach ($output->getResult() as $address) {
-        //            var_dump($address->name);
-        //        } echo "<br>";
-
         return $orient;
+         */
+        $client = new OriClient($this->getHost(), $this->getPort());
+        $client->getTransport()->setAuth($this->getUsername(), $this->getPassword());
+        return $client;
     }
 
     /**

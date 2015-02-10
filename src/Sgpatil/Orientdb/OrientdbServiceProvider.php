@@ -4,6 +4,7 @@ namespace Sgpatil\Orientdb;
 
 use Sgpatil\Orientdb\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Sgpatil\Orientdb\Connection;
 
 class OrientdbServiceProvider extends ServiceProvider {
 
@@ -41,6 +42,7 @@ class OrientdbServiceProvider extends ServiceProvider {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
             $loader->alias('Orientdb', 'Sgpatil\Orientdb\Eloquent\Model');
         });
+        
     }
 
     /**
