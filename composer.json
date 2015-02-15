@@ -10,12 +10,12 @@
         }
     ],
     "require": {
-       "sgpatil/orientdb-php": "dev-master"
+       "sgpatil/orientdb-php": "0.*"
     },
 	"autoload": {
 		"psr-0": {
 		"Sgpatil\\Orientdb\\": "src/"
 	}
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
