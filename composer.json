@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-       "sgpatil/orientdb-php": "0.0.1"
+       "sgpatil/orientdb-php": "dev-master"
     },
 	"autoload": {
 		"psr-0": {
