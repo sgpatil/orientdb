@@ -9,7 +9,7 @@
             "email": "sgpatil.2803@gmail.com"
         }
     ],
-    "require": {
+    "require-dev": {
        "sgpatil/orientdb-php": "*"
     },
 	"autoload": {
