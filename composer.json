@@ -9,12 +9,10 @@
             "email": "sgpatil.2803@gmail.com"
         }
     ],
-    "require" : [
+    "require" : 
     {
     	"test/test123" : "*"
-    }	
-    
-    ],
+    },
 
 	"autoload": {
 		"psr-0": {
