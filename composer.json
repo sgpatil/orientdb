@@ -9,11 +9,9 @@
             "email": "sgpatil.2803@gmail.com"
         }
     ],
-    "require" : 
-    {
-    	"test/test123" : "*"
+    "require": {
+       "sgpatil/orientdb-php": "@dev"
     },
-
 	"autoload": {
 		"psr-0": {
 		"Sgpatil\\Orientdb\\": "src/"
