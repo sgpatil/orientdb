@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-       "sgpatil/orientdb-php": "@dev"
+       "sgpatil/orientdb-php": "*"
     },
 	"autoload": {
 		"psr-0": {
