@@ -1,4 +1,4 @@
-<?php namespace Sgpatil\Orientdb\Migration;
+<?php namespace Sgpatil\Orientdb\Migrations;
 
 interface MigrationRepositoryInterface {
 

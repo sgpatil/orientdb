@@ -113,13 +113,13 @@ class Builder extends IlluminateQueryBuilder {
     public function insertGetId(array $values, $sequence = null) {
 
          // create a neo4j Node
-        $node = $this->client->makeClass();
+        $node = $this->client->makeClass($this->from);
 
-        // set its properties
-        foreach ($values as $key => $value)
-        {
-            $node->setProperty($key, $value);
-        }
+//        // set its properties
+//        foreach ($values as $key => $value)
+//        {
+//            $node->setProperty($key, $value);
+//        }
 
         // save the node
         $node->save();
@@ -793,10 +793,10 @@ exit('checking');
      * @param  string  $sequence
      * @return int
      */
-    public function createClass() {
+    public function createClass($className) {
 
          // create a neo4j Node
-        $node = $this->client->makeClass();
+        $node = $this->client->makeClass($className);
         // save the node
         $node->save();
         

@@ -28,7 +28,7 @@ class Connection extends IlluminateConnection {
     /**
      * The Orientdb database transaction
      *
-     * @var 
+     * @var
      */
     protected $transaction;
 
@@ -40,6 +40,7 @@ class Connection extends IlluminateConnection {
     protected $defaults = array(
         'host' => 'localhost',
         'port' => 2480,
+        'database' => 'demo',
         'username' => null,
         'password' => null
     );
@@ -67,10 +68,10 @@ class Connection extends IlluminateConnection {
     /**
      * Create a new Orientdb client
      *
-     * @return 
+     * @return
      */
     public function createConnection() {
-        
+
         //exit('testing');
         /*
         // below code is used to create connection usinf Orientdb-odm
@@ -78,7 +79,7 @@ class Connection extends IlluminateConnection {
         $orient = new Binding($parameters);
         return $orient;
          */
-        $client = new OriClient($this->getHost(), $this->getPort());
+        $client = new OriClient($this->getHost(), $this->getPort(), $this->getDatabase());
         $client->getTransport()->setAuth($this->getUsername(), $this->getPassword());
         return $client;
     }
@@ -86,7 +87,7 @@ class Connection extends IlluminateConnection {
     /**
      * Get the currenty active database client
      *
-     * @return 
+     * @return
      */
     public function getClient() {
         return $this->orient;
@@ -96,7 +97,7 @@ class Connection extends IlluminateConnection {
      * Set the client responsible for the
      * database communication
      *
-     * @param 
+     * @param
      */
     public function setClient(NeoClient $client) {
         $this->orient = $client;
@@ -134,6 +135,14 @@ class Connection extends IlluminateConnection {
      */
     public function getPassword() {
         return $this->getConfig('password', $this->defaults['password']);
+    }
+    
+    /**
+     * Get the database name
+     * @return strings
+     */
+    public function getDatabase() {
+        return $this->getConfig('database', $this->defaults['database']);
     }
 
     /**
@@ -203,7 +212,7 @@ class Connection extends IlluminateConnection {
      *
      * @param  string  $query
      * @param  array   $bindings
-     * @return 
+     * @return
      */
     public function statement($query, $bindings = array(), $rawResults = false) {
         return $this->run($query, $bindings, function(self $me, $query, array $bindings) use($rawResults) {
