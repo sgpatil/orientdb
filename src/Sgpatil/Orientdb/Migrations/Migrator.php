@@ -368,7 +368,10 @@ class Migrator {
 	 */
 	public function repositoryExists()
 	{
+            
+            
 		return $this->repository->repositoryExists();
+                exit('check');
 	}
 
 	/**

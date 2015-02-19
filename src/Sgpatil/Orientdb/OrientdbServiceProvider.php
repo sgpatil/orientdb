@@ -50,6 +50,10 @@ class OrientdbServiceProvider extends ServiceProvider {
         $this->app->bind('MigrationRepositoryInterface', function() {
             return new Sgpatil\Orientdb\DatabaseMigrationRepository();
         });
+        
+        $this->app->bind('ConnectionResolverInterface', function() {
+            return new ConnectionResolver();
+        });
 
         $this->app->bind('orientdb.database', function() {
             return new Connection(['host' => 'localhost',

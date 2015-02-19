@@ -47,8 +47,9 @@ class MigrationServiceProvider extends ServiceProvider {
 		$this->app->bindShared('migration.repository', function($app)
 		{
 			$table = $app['config']['database.migrations'];
+                        $db = $app->make("ConnectionResolverInterface");
 
-			return new DatabaseMigrationRepository($app['db'], $table);
+			return new DatabaseMigrationRepository($db, $table);
 		});
 	}
 

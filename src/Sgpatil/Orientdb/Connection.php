@@ -12,7 +12,7 @@ use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 use Doctrine\DBAL\DriverManager;
 
-use Everyman\Neo4j\Client as OriClient;
+use Sgpatil\Orientphp\Client as OriClient;
 /**
  * Description of Connection
  *

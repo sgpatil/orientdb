@@ -135,8 +135,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
             
 		$schema = $this->getConnection()->getSchemaBuilder();
                 dd($schema);
-                exit("test \n");
-
+exit("inside db repo");
 		return $schema->hasTable($this->table);
 	}
 
@@ -166,8 +165,10 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
 	 * @return \Illuminate\Database\Connection
 	 */
 	public function getConnection()
-	{
+	{ echo $this->connection;
+        
 		return $this->resolver->connection($this->connection);
+                exit('oooo');
 	}
 
 	/**

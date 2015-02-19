@@ -59,6 +59,8 @@ class MigrateCommand extends BaseCommand {
 		if ( ! $this->confirmToProceed()) return;
 
 		$this->prepareDatabase();
+                
+                exit("end");
 
 		// The pretend option can be used for "simulating" the migration and grabbing
 		// the SQL queries that would fire if the migration were to be run against
