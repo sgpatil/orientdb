@@ -16,7 +16,7 @@ Add the package to your `composer.json` and run `composer update`.
 ```json
 {
     "require": {
-        "sgpatil/orientdb": "*"
+        "sgpatil/orientdb": "@dev"
     }
 }
 ```
@@ -46,8 +46,9 @@ Add the connection defaults:
         'driver' => 'orientdb',
         'host'   => 'localhost',
         'port'   => '2480',
-        'username' => root,
-        'password' => root
+        'database' => 'database',
+        'username' => 'root',
+        'password' => 'root'
     ]
 ]
 ```
