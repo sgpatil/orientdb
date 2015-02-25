@@ -1,7 +1,7 @@
 <?php namespace Sgpatil\Orientdb\Schema;
 
 use Closure;
-use Illuminate\Database\Connection;
+use Sgpatil\Orientdb\Connection;
 
 class Builder {
 
@@ -46,11 +46,12 @@ class Builder {
 	 */
 	public function hasTable($table)
 	{
-		$sql = $this->grammar->compileTableExists();
+            //exit($table);
+		//$sql = $this->grammar->compileTableExists();
 
 		$table = $this->connection->getTablePrefix().$table;
 
-		return count($this->connection->select($sql, array($table))) > 0;
+		return count($this->connection->select( array($table))) > 0;
 	}
 
 	/**
@@ -112,6 +113,24 @@ class Builder {
 		$this->build($blueprint);
 	}
 
+        /**
+	 * Create a new Class on the schema.
+	 *
+	 * @param  string    $table
+	 * @param  \Closure  $callback
+	 * @return \Illuminate\Database\Schema\Blueprint
+	 */
+	public function createClass($table, Closure $callback)
+	{
+		$blueprint = $this->createBlueprint($table);
+
+		$blueprint->create();
+
+		$callback($blueprint);
+
+		$this->build($blueprint);
+	}
+        
 	/**
 	 * Drop a table from the schema.
 	 *
@@ -166,7 +185,9 @@ class Builder {
 	 */
 	protected function build(Blueprint $blueprint)
 	{
-		$blueprint->build($this->connection, $this->grammar);
+            $grammar = new \Sgpatil\Orientdb\Schema\Grammars\OrientdbGrammar();
+
+		$blueprint->build($this->connection, $grammar);
 	}
 
 	/**

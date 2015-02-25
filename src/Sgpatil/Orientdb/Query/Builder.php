@@ -488,10 +488,12 @@ exit('checking');
 
         $cypher = $this->grammar->compileInsert($this, $values);
 
+      
         // Once we have compiled the insert statement's Cypher we can execute it on the
         // connection and return a result as a boolean success indicator as that
         // is the same type of result returned by the raw connection instance.
         $bindings = $this->cleanBindings($bindings);
+          
 
         return $this->connection->insert($cypher, $bindings);
     }
@@ -688,6 +690,7 @@ exit('checking');
 
         $results = $this->get($columns);
 
+        
         // Once we have executed the query, we will reset the aggregate property so
         // that more select queries can be executed against the database without
         // the aggregate value getting in the way when the grammar builds it.
@@ -801,5 +804,61 @@ exit('checking');
         $node->save();
         
     }
+    
+    
+    /**
+	 * Get an array with the values of a given column.
+	 *
+	 * @param  string  $column
+	 * @param  string  $key
+	 * @return array
+	 */
+	public function lists($column, $key = null)
+	{
+          
+            
+		$columns = $this->getListSelect($column, $key);
+                
+
+		// First we will just get all of the column values for the record result set
+		// then we can associate those values with the column if it was specified
+		// otherwise we can just give these values back without a specific key.
+                $res = $this->get($columns);
+                
+		$results = new Collection($res->getData());
+
+		$values = $results->fetch($columns[0])->all();
+
+		// If a key was specified and we have results, we will go ahead and combine
+		// the values with the keys of all of the records so that the values can
+		// be accessed by the key of the rows instead of simply being numeric.
+		if ( ! is_null($key) && count($results) > 0)
+		{
+			$keys = $results->fetch($key)->all();
+
+			return array_combine($keys, $values);
+		}
+
+		return $values;
+	}
+        
+        /**
+	 * Execute the query as a "select" statement.
+	 *
+	 * @param  array  $columns
+	 * @return array|static[]
+	 */
+	public function get($columns = array('*'))
+	{       
+        //      // No cache is this version
+		//if ( ! is_null($this->cacheMinutes)) return $this->getCached($columns);
+
+		return $this->getFresh($columns);
+	}
+        
+ 
+
+
+
 
 }

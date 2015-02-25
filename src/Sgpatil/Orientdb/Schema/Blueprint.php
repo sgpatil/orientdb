@@ -2,8 +2,8 @@
 
 use Closure;
 use Illuminate\Support\Fluent;
-use Illuminate\Database\Connection;
-use Illuminate\Database\Schema\Grammars\Grammar;
+use Sgpatil\Orientdb\Connection;
+use Sgpatil\Orientdb\Schema\Grammars\Grammar;
 
 class Blueprint {
 
@@ -56,15 +56,12 @@ class Blueprint {
 	 * @param  \Illuminate\Database\Schema\Grammars\Grammar $grammar
 	 * @return void
 	 */
-	public function build(Connection $connection, Grammar $grammar)
-	{
-		foreach ($this->toSql($connection, $grammar) as $statement)
-		{
-			$connection->statement($statement);
-		}
-	}
+	public function build(Connection $connection, Grammar $grammar) {
+            $node = $connection->getClient()->makeClass($this->table, $this->columns);
+            $node->save();
+        }
 
-	/**
+    /**
 	 * Get the raw SQL statements for the blueprint.
 	 *
 	 * @param  \Illuminate\Database\Connection  $connection
@@ -381,7 +378,7 @@ class Blueprint {
 	 */
 	public function string($column, $length = 255)
 	{
-		return $this->addColumn('string', $column, compact('length'));
+		return $this->addColumn('STRING', $column, compact('length'));
 	}
 
 	/**
@@ -427,7 +424,7 @@ class Blueprint {
 	 */
 	public function integer($column, $autoIncrement = false, $unsigned = false)
 	{
-		return $this->addColumn('integer', $column, compact('autoIncrement', 'unsigned'));
+		return $this->addColumn('INTEGER', $column, compact('autoIncrement', 'unsigned'));
 	}
 
 	/**
@@ -752,9 +749,17 @@ class Blueprint {
 	 * @param  array   $parameters
 	 * @return \Illuminate\Support\Fluent
 	 */
-	protected function addColumn($type, $name, array $parameters = array())
+	protected function addColumn($propertyType, $name, array $parameters = array())
 	{
-		$attributes = array_merge(compact('type', 'name'), $parameters);
+            
+            
+            $attributes = array($name => compact('propertyType'));
+            
+            $this->columns[$name] = compact('propertyType');
+            
+            return $attributes;
+     
+		$attributes = array_merge(compact('propertyType', 'name'), $parameters);
 
 		$this->columns[] = $column = new Fluent($attributes);
 

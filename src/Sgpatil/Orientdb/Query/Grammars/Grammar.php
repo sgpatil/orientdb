@@ -43,7 +43,7 @@ class Grammar extends IlluminateGrammar {
 
         if (strpos($property, '.') !== false) $property = explode('.', $property)[1];
 
-		return '{' . $property . '}';
+		return "'" . $property . "'";
 	}
 
     /**
@@ -117,7 +117,8 @@ class Grammar extends IlluminateGrammar {
         {
             return 'id(' . $this->query->modelAsNode() . ')';
         }
-        return $this->query->modelAsNode() . '.' . $value;
+        //return $this->query->modelAsNode() . '.' . $value;
+        return $value;
     }
 
     /**
@@ -272,4 +273,6 @@ class Grammar extends IlluminateGrammar {
         // Sanitize the string from all characters except alpha numeric.
         return preg_replace('[^A-Za-z0-9]', '', $property);
     }
+    
+    
 }

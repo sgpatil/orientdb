@@ -114,7 +114,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
 	{
 		$schema = $this->getConnection()->getSchemaBuilder();
 
-		$schema->create($this->table, function($table)
+		$schema->createClass($this->table, function($table)
 		{
 			// The migrations table is responsible for keeping track of which of the
 			// migrations have actually run for the application. We'll create the
@@ -132,10 +132,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
 	 */
 	public function repositoryExists()
 	{
-            
+           
 		$schema = $this->getConnection()->getSchemaBuilder();
-                dd($schema);
-exit("inside db repo");
 		return $schema->hasTable($this->table);
 	}
 
@@ -165,10 +163,8 @@ exit("inside db repo");
 	 * @return \Illuminate\Database\Connection
 	 */
 	public function getConnection()
-	{ echo $this->connection;
-        
+	{ 
 		return $this->resolver->connection($this->connection);
-                exit('oooo');
 	}
 
 	/**

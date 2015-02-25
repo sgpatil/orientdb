@@ -51,14 +51,20 @@ class OrientdbServiceProvider extends ServiceProvider {
             return new Sgpatil\Orientdb\DatabaseMigrationRepository();
         });
         
-        $this->app->bind('ConnectionResolverInterface', function() {
-            return new ConnectionResolver();
+        $this->app->bind('ConnectionResolverInterface', function($app) {
+            $conn = new Connection(['host' => 'localhost',
+                'port' => 2480,
+                'username' => 'root',
+                'database' => 'graphdb2',
+                'password' => 'root']);
+            return new DatabaseManager($app, $conn );
         });
 
         $this->app->bind('orientdb.database', function() {
             return new Connection(['host' => 'localhost',
                 'port' => 2480,
                 'username' => 'root',
+                'database' => 'graphdb2',
                 'password' => 'root']);
         });
 

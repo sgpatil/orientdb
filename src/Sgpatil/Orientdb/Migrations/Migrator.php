@@ -69,17 +69,22 @@ class Migrator {
 		$this->notes = array();
 
 		$files = $this->getMigrationFiles($path);
-
+                
+                
 		// Once we grab all of the migration files for the path, we will compare them
 		// against the migrations that have already been run for this package then
 		// run each of the outstanding migrations against a database connection.
 		$ran = $this->repository->getRan();
 
+                
 		$migrations = array_diff($files, $ran);
+                
+              
 
 		$this->requireFiles($path, $migrations);
-
+ 
 		$this->runMigrationList($migrations, $pretend);
+
 	}
 
 	/**
@@ -122,6 +127,7 @@ class Migrator {
 	 */
 	protected function runUp($file, $batch, $pretend)
 	{
+           
 		// First we will resolve a "real" instance of the migration class from this
 		// migration file name. Once we have the instances we can run the actual
 		// command such as "up" or "down", or we can just simulate the action.
@@ -133,6 +139,7 @@ class Migrator {
 		}
 
 		$migration->up();
+                
 
 		// Once we have run a migrations class, we will log that it was run in this
 		// repository so that we don't try to run it next time we do a migration
@@ -367,11 +374,8 @@ class Migrator {
 	 * @return bool
 	 */
 	public function repositoryExists()
-	{
-            
-            
+	{          
 		return $this->repository->repositoryExists();
-                exit('check');
 	}
 
 	/**

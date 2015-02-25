@@ -1,45 +1,41 @@
 <?php namespace Sgpatil\Orientdb\Schema\Grammars;
-
+use Sgpatil\Orientdb\Connection;
 use Illuminate\Support\Fluent;
-use Illuminate\Database\Schema\Blueprint;
+use Sgpatil\Orientdb\Schema\Blueprint;
 
 class OrientdbGrammar extends Grammar {
-
-	/**
+        /**
 	 * The possible column modifiers.
 	 *
 	 * @var array
 	 */
-	protected $modifiers = array('Increment', 'Nullable', 'Default');
+	protected $modifiers = array('Unsigned', 'Nullable', 'Default', 'Increment', 'Comment', 'After');
 
 	/**
-	 * The columns available as serials.
+	 * The possible column serials
 	 *
 	 * @var array
 	 */
-	protected $serials = array('bigInteger', 'integer');
+	protected $serials = array('bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger');
 
 	/**
-	 * Compile the query to determine if a table exists.
+	 * Compile the query to determine the list of tables.
 	 *
 	 * @return string
 	 */
-	public function compileTableExists()
+	public function compileTableExists($table)
 	{
-		return "select * from sysobjects where type = 'U' and name = ?";
+		return 'select * from '.$table;
 	}
 
 	/**
 	 * Compile the query to determine the list of columns.
 	 *
-	 * @param  string  $table
 	 * @return string
 	 */
-	public function compileColumnExists($table)
+	public function compileColumnExists()
 	{
-		return "select col.name from sys.columns as col
-                join sys.objects as obj on col.object_id = obj.object_id
-                where obj.type = 'U' and obj.name = '$table'";
+		return "select column_name from information_schema.columns where table_schema = ? and table_name = ?";
 	}
 
 	/**
@@ -47,17 +43,52 @@ class OrientdbGrammar extends Grammar {
 	 *
 	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
 	 * @param  \Illuminate\Support\Fluent  $command
+	 * @param  \Illuminate\Database\Connection  $connection
 	 * @return string
 	 */
-	public function compileCreate(Blueprint $blueprint, Fluent $command)
+	public function compileCreate(Blueprint $blueprint, Fluent $command, Connection $connection)
 	{
 		$columns = implode(', ', $this->getColumns($blueprint));
 
-		return 'create table '.$this->wrapTable($blueprint)." ($columns)";
+		$sql = 'create class '.$this->wrapTable($blueprint);//." ($columns)";
+
+		// Once we have the primary SQL, we can add the encoding option to the SQL for
+		// the table.  Then, we can check if a storage engine has been supplied for
+		// the table. If so, we will add the engine declaration to the SQL query.
+		$sql = $this->compileCreateEncoding($sql, $connection);
+
+		if (isset($blueprint->engine))
+		{
+			$sql .= ' engine = '.$blueprint->engine;
+		}
+
+		return $sql;
 	}
 
 	/**
-	 * Compile a create table command.
+	 * Append the character set specifications to a command.
+	 *
+	 * @param  string  $sql
+	 * @param  \Illuminate\Database\Connection  $connection
+	 * @return string
+	 */
+	protected function compileCreateEncoding($sql, Connection $connection)
+	{
+		if ( ! is_null($charset = $connection->getConfig('charset')))
+		{
+			$sql .= ' default character set '.$charset;
+		}
+
+		if ( ! is_null($collation = $connection->getConfig('collation')))
+		{
+			$sql .= ' collate '.$collation;
+		}
+
+		return $sql;
+	}
+
+	/**
+	 * Compile an add column command.
 	 *
 	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
 	 * @param  \Illuminate\Support\Fluent  $command
@@ -67,9 +98,9 @@ class OrientdbGrammar extends Grammar {
 	{
 		$table = $this->wrapTable($blueprint);
 
-		$columns = $this->getColumns($blueprint);
+		$columns = $this->prefixArray('add', $this->getColumns($blueprint));
 
-		return 'alter table '.$table.' add '.implode(', ', $columns);
+		return 'alter table '.$table.' '.implode(', ', $columns);
 	}
 
 	/**
@@ -81,11 +112,9 @@ class OrientdbGrammar extends Grammar {
 	 */
 	public function compilePrimary(Blueprint $blueprint, Fluent $command)
 	{
-		$columns = $this->columnize($command->columns);
+		$command->name(null);
 
-		$table = $this->wrapTable($blueprint);
-
-		return "alter table {$table} add constraint {$command->index} primary key ({$columns})";
+		return $this->compileKey($blueprint, $command, 'primary key');
 	}
 
 	/**
@@ -97,11 +126,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	public function compileUnique(Blueprint $blueprint, Fluent $command)
 	{
-		$columns = $this->columnize($command->columns);
-
-		$table = $this->wrapTable($blueprint);
-
-		return "create unique index {$command->index} on {$table} ({$columns})";
+		return $this->compileKey($blueprint, $command, 'unique');
 	}
 
 	/**
@@ -113,11 +138,24 @@ class OrientdbGrammar extends Grammar {
 	 */
 	public function compileIndex(Blueprint $blueprint, Fluent $command)
 	{
+		return $this->compileKey($blueprint, $command, 'index');
+	}
+
+	/**
+	 * Compile an index creation command.
+	 *
+	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+	 * @param  \Illuminate\Support\Fluent  $command
+	 * @param  string  $type
+	 * @return string
+	 */
+	protected function compileKey(Blueprint $blueprint, Fluent $command, $type)
+	{
 		$columns = $this->columnize($command->columns);
 
 		$table = $this->wrapTable($blueprint);
 
-		return "create index {$command->index} on {$table} ({$columns})";
+		return "alter table {$table} add {$type} {$command->index}($columns)";
 	}
 
 	/**
@@ -133,6 +171,18 @@ class OrientdbGrammar extends Grammar {
 	}
 
 	/**
+	 * Compile a drop table (if exists) command.
+	 *
+	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+	 * @param  \Illuminate\Support\Fluent  $command
+	 * @return string
+	 */
+	public function compileDropIfExists(Blueprint $blueprint, Fluent $command)
+	{
+		return 'drop table if exists '.$this->wrapTable($blueprint);
+	}
+
+	/**
 	 * Compile a drop column command.
 	 *
 	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
@@ -141,11 +191,11 @@ class OrientdbGrammar extends Grammar {
 	 */
 	public function compileDropColumn(Blueprint $blueprint, Fluent $command)
 	{
-		$columns = $this->wrapArray($command->columns);
+		$columns = $this->prefixArray('drop', $this->wrapArray($command->columns));
 
 		$table = $this->wrapTable($blueprint);
 
-		return 'alter table '.$table.' drop column '.implode(', ', $columns);
+		return 'alter table '.$table.' '.implode(', ', $columns);
 	}
 
 	/**
@@ -157,9 +207,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	public function compileDropPrimary(Blueprint $blueprint, Fluent $command)
 	{
-		$table = $this->wrapTable($blueprint);
-
-		return "alter table {$table} drop constraint {$command->index}";
+		return 'alter table '.$this->wrapTable($blueprint).' drop primary key';
 	}
 
 	/**
@@ -173,7 +221,7 @@ class OrientdbGrammar extends Grammar {
 	{
 		$table = $this->wrapTable($blueprint);
 
-		return "drop index {$command->index} on {$table}";
+		return "alter table {$table} drop index {$command->index}";
 	}
 
 	/**
@@ -187,7 +235,7 @@ class OrientdbGrammar extends Grammar {
 	{
 		$table = $this->wrapTable($blueprint);
 
-		return "drop index {$command->index} on {$table}";
+		return "alter table {$table} drop index {$command->index}";
 	}
 
 	/**
@@ -201,7 +249,7 @@ class OrientdbGrammar extends Grammar {
 	{
 		$table = $this->wrapTable($blueprint);
 
-		return "alter table {$table} drop constraint {$command->index}";
+		return "alter table {$table} drop foreign key {$command->index}";
 	}
 
 	/**
@@ -215,7 +263,7 @@ class OrientdbGrammar extends Grammar {
 	{
 		$from = $this->wrapTable($blueprint);
 
-		return "sp_rename {$from}, ".$this->wrapTable($command->to);
+		return "rename table {$from} to ".$this->wrapTable($command->to);
 	}
 
 	/**
@@ -226,7 +274,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeChar(Fluent $column)
 	{
-		return "nchar({$column->length})";
+		return "char({$column->length})";
 	}
 
 	/**
@@ -237,7 +285,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeString(Fluent $column)
 	{
-		return "nvarchar({$column->length})";
+		return "varchar({$column->length})";
 	}
 
 	/**
@@ -248,7 +296,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeText(Fluent $column)
 	{
-		return 'nvarchar(max)';
+		return 'text';
 	}
 
 	/**
@@ -259,7 +307,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeMediumText(Fluent $column)
 	{
-		return 'nvarchar(max)';
+		return 'mediumtext';
 	}
 
 	/**
@@ -270,18 +318,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeLongText(Fluent $column)
 	{
-		return 'nvarchar(max)';
-	}
-
-	/**
-	 * Create the column definition for a integer type.
-	 *
-	 * @param  \Illuminate\Support\Fluent  $column
-	 * @return string
-	 */
-	protected function typeInteger(Fluent $column)
-	{
-		return 'int';
+		return 'longtext';
 	}
 
 	/**
@@ -296,6 +333,17 @@ class OrientdbGrammar extends Grammar {
 	}
 
 	/**
+	 * Create the column definition for a integer type.
+	 *
+	 * @param  \Illuminate\Support\Fluent  $column
+	 * @return string
+	 */
+	protected function typeInteger(Fluent $column)
+	{
+		return 'int';
+	}
+
+	/**
 	 * Create the column definition for a medium integer type.
 	 *
 	 * @param  \Illuminate\Support\Fluent  $column
@@ -303,7 +351,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeMediumInteger(Fluent $column)
 	{
-		return 'int';
+		return 'mediumint';
 	}
 
 	/**
@@ -336,7 +384,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeFloat(Fluent $column)
 	{
-		return 'float';
+		return "float({$column->total}, {$column->places})";
 	}
 
 	/**
@@ -347,7 +395,12 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeDouble(Fluent $column)
 	{
-		return 'float';
+		if ($column->total && $column->places)
+		{
+			return "double({$column->total}, {$column->places})";
+		}
+
+		return 'double';
 	}
 
 	/**
@@ -369,7 +422,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeBoolean(Fluent $column)
 	{
-		return 'bit';
+		return 'tinyint(1)';
 	}
 
 	/**
@@ -380,7 +433,7 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeEnum(Fluent $column)
 	{
-		return 'nvarchar(255)';
+		return "enum('".implode("', '", $column->allowed)."')";
 	}
 
 	/**
@@ -424,7 +477,9 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeTimestamp(Fluent $column)
 	{
-		return 'datetime';
+		if ( ! $column->nullable) return 'timestamp default 0';
+
+		return 'timestamp';
 	}
 
 	/**
@@ -435,7 +490,19 @@ class OrientdbGrammar extends Grammar {
 	 */
 	protected function typeBinary(Fluent $column)
 	{
-		return 'varbinary(max)';
+		return 'blob';
+	}
+
+	/**
+	 * Get the SQL for an unsigned column modifier.
+	 *
+	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+	 * @param  \Illuminate\Support\Fluent  $column
+	 * @return string|null
+	 */
+	protected function modifyUnsigned(Blueprint $blueprint, Fluent $column)
+	{
+		if ($column->unsigned) return ' unsigned';
 	}
 
 	/**
@@ -476,8 +543,51 @@ class OrientdbGrammar extends Grammar {
 	{
 		if (in_array($column->type, $this->serials) && $column->autoIncrement)
 		{
-			return ' identity primary key';
+			return ' auto_increment primary key';
 		}
+	}
+
+	/**
+	 * Get the SQL for an "after" column modifier.
+	 *
+	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+	 * @param  \Illuminate\Support\Fluent  $column
+	 * @return string|null
+	 */
+	protected function modifyAfter(Blueprint $blueprint, Fluent $column)
+	{
+		if ( ! is_null($column->after))
+		{
+			return ' after '.$this->wrap($column->after);
+		}
+	}
+
+	/**
+	 * Get the SQL for an "comment" column modifier.
+	 *
+	 * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+	 * @param  \Illuminate\Support\Fluent  $column
+	 * @return string|null
+	 */
+	protected function modifyComment(Blueprint $blueprint, Fluent $column)
+	{
+		if ( ! is_null($column->comment))
+		{
+			return ' comment "'.$column->comment.'"';
+		}
+	}
+
+	/**
+	 * Wrap a single string in keyword identifiers.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected function wrapValue($value)
+	{
+		if ($value === '*') return $value;
+                return $value;
+		return '`'.str_replace('`', '``', $value).'`';
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php namespace Sgpatil\Orientdb\Schema;
 
-class MySqlBuilder extends Builder {
+class OrientdbBuilder extends Builder {
 
 	/**
 	 * Determine if the given table exists.
@@ -10,13 +10,13 @@ class MySqlBuilder extends Builder {
 	 */
 	public function hasTable($table)
 	{
-		$sql = $this->grammar->compileTableExists();
+		$sql = $this->grammar->compileTableExists($table);
 
-		$database = $this->connection->getDatabaseName();
+                $database = $this->connection->getDatabaseName();
 
 		$table = $this->connection->getTablePrefix().$table;
 
-		return count($this->connection->select($sql, array($database, $table))) > 0;
+		return count($this->connection->select($sql, array($table))) > 0;
 	}
 
 	/**

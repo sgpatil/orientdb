@@ -59,17 +59,20 @@ class MigrateCommand extends BaseCommand {
 		if ( ! $this->confirmToProceed()) return;
 
 		$this->prepareDatabase();
-                
-                exit("end");
+
 
 		// The pretend option can be used for "simulating" the migration and grabbing
 		// the SQL queries that would fire if the migration were to be run against
 		// a database for real, which is helpful for double checking migrations.
 		$pretend = $this->input->getOption('pretend');
+                
 
 		$path = $this->getMigrationPath();
 
+               
 		$this->migrator->run($path, $pretend);
+                
+                exit('\n end \n');
 
 		// Once the migrator has run we will grab the note output and send it out to
 		// the console screen, since the migrator itself functions without having
@@ -100,9 +103,10 @@ class MigrateCommand extends BaseCommand {
 		if ( ! $this->migrator->repositoryExists())
 		{
 			$options = array('--database' => $this->input->getOption('database'));
-
 			$this->call('orient:install', $options);
-		}
+                }else{
+                    echo "I m inside";
+                }
 	}
 
 	/**

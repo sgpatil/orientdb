@@ -1,8 +1,8 @@
 <?php namespace Sgpatil\Orientdb;
 
-use \Orientdb\Exception as Neo4jException;
+use Sgpatil\Orientphp\Exception as OrientdbException;
 
-class QueryException extends Neo4jException {
+class QueryException extends OrientdbException {
 
     public function __construct($query, $bindings = array(), $exception = null)
     {

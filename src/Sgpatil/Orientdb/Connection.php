@@ -6,6 +6,8 @@ use DateTime,
     Closure;
 use Sgpatil\Orientdb\Query\Builder;
 use Sgpatil\Orientdb\QueryException;
+use Sgpatil\Orientphp\Cypher\Query as CypherQuery;
+use Sgpatil\Orientphp\Batch\Query as BatchQuery;
 use Illuminate\Database\Connection as IlluminateConnection;
 use Illuminate\Database\Eloquent\Model as IlluminateModel;
 use Doctrine\OrientDB\Binding\HttpBinding as Binding;
@@ -32,6 +34,7 @@ class Connection extends IlluminateConnection {
      */
     protected $transaction;
 
+    protected $schemaGrammar="rwarawr";
     /**
      * Default connection configuration parameters
      *
@@ -83,6 +86,12 @@ class Connection extends IlluminateConnection {
         $client->getTransport()->setAuth($this->getUsername(), $this->getPassword());
         return $client;
     }
+    
+    public function make(array $config, $name = null)
+	{
+        $this->createConnection();
+        return $this;
+	}
 
     /**
      * Get the currenty active database client
@@ -181,8 +190,31 @@ class Connection extends IlluminateConnection {
                     // of the database result set. Each element in the array will be a single
                     // node from the database, and will either be an array or objects.
                     $statement = $me->getCypherQuery($query, $bindings);
-
                     return $statement->getResultSet();
+
+                });
+    }
+    
+    
+    /**
+     * Run a insert statement against the database.
+     *
+     * @param  string  $query
+     * @param  array   $bindings
+     * @return array
+     */
+    public function insert($query, $bindings = array()) {
+
+        return $this->run($query, $bindings, function(self $me, $query, array $bindings) {
+                    if ($me->pretending())
+                        return array();
+
+                    // For select statements, we'll simply execute the query and return an array
+                    // of the database result set. Each element in the array will be a single
+                    // node from the database, and will either be an array or objects.
+                    $statement = $me->getBatchQuery($query, $bindings);
+                    return $statement->getResultSet();
+
                 });
     }
 
@@ -218,7 +250,6 @@ class Connection extends IlluminateConnection {
         return $this->run($query, $bindings, function(self $me, $query, array $bindings) use($rawResults) {
                     if ($me->pretending())
                         return true;
-
                     $statement = $me->getCypherQuery($query, $bindings);
 
                     $result = $statement->getResultSet();
@@ -236,6 +267,17 @@ class Connection extends IlluminateConnection {
      */
     public function getCypherQuery($query, array $bindings) {
         return new CypherQuery($this->getClient(), $query, $this->prepareBindings($bindings));
+    }
+    
+    /**
+     * Make a query out of a Batch statement
+     * and the bindings values
+     *
+     * @param  string  $query
+     * @param  array  $bindings
+     */
+    public function getBatchQuery($query, array $bindings) {
+        return new BatchQuery($this->getClient(), $query, $this->prepareBindings($bindings));
     }
 
     /**
@@ -437,5 +479,23 @@ class Connection extends IlluminateConnection {
 
         return $result;
     }
+    
+    /**
+	 * Get a schema builder instance for the connection.
+	 *
+	 * @return \Illuminate\Database\Schema\Builder
+	 */
+	public function getSchemaBuilder()
+	{
+		if (is_null($this->schemaGrammar)) { $this->useDefaultSchemaGrammar(); }
+
+		return new Schema\OrientdbBuilder($this);
+	}
+        
+        public function getSchemaGrammar()
+	{
+		 return new Schema\Grammars\OrientdbGrammar();
+	}
+
 
 }
