@@ -185,12 +185,14 @@ class Connection extends IlluminateConnection {
         return $this->run($query, $bindings, function(self $me, $query, array $bindings) {
                     if ($me->pretending())
                         return array();
-
                     // For select statements, we'll simply execute the query and return an array
                     // of the database result set. Each element in the array will be a single
                     // node from the database, and will either be an array or objects.
-                    $statement = $me->getCypherQuery($query, $bindings);
+                     $statement = $me->getBatchQuery($query, $bindings);
                     return $statement->getResultSet();
+                    
+//                    $statement = $me->getCypherQuery($query, $bindings);
+//                    return $statement->getResultSet();
 
                 });
     }

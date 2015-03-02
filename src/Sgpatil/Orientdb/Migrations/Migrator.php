@@ -78,8 +78,7 @@ class Migrator {
 
                 
 		$migrations = array_diff($files, $ran);
-                
-              
+               
 
 		$this->requireFiles($path, $migrations);
  

@@ -10,13 +10,11 @@ class OrientdbBuilder extends Builder {
 	 */
 	public function hasTable($table)
 	{
-		$sql = $this->grammar->compileTableExists($table);
-
-                $database = $this->connection->getDatabaseName();
-
-		$table = $this->connection->getTablePrefix().$table;
-
-		return count($this->connection->select($sql, array($table))) > 0;
+            $sql = $this->grammar->compileTableExists($table);
+            $statement = $this->connection->getBatchQuery($sql, []);
+            $data = $statement->getResultSet();
+            return $data->result()? true: false;
+          
 	}
 
 	/**

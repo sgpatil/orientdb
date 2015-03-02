@@ -5,297 +5,247 @@ use Sgpatil\Orientdb\Exceptions\InvalidCypherGrammarComponentException;
 
 class CypherGrammar extends Grammar {
 
-    protected $selectComponents = array(
-        'matches',
-        'from',
-        'with',
-        'wheres',
-        'unions',
-        'columns',
-        'orders',
-        'offset',
-        'limit',
-    );
-
-    /**
-	 * Get the Cypher representation of the query.
+   /**
+	 * The components that make up a select clause.
 	 *
+	 * @var array
+	 */
+	protected $selectComponents = array(
+		'aggregate',
+		'columns',
+		'from',
+		'joins',
+		'wheres',
+		'groups',
+		'havings',
+		'orders',
+		'limit',
+		'offset',
+		'unions',
+		'lock',
+	);
+
+	/**
+	 * Compile a select query into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder
 	 * @return string
 	 */
-    public function compileSelect(Builder $query)
-    {
-        if (is_null($query->columns)) $query->columns = array('*');
-
-        return trim($this->concatenate($this->compileComponents($query)));
-    }
-
-
-    /**
-	 * Compile the components necessary for a select clause.
-	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder
-     * @param  array|string $specified You may specify a component to compile
-	 * @return array
-	 */
-	protected function compileComponents(Builder $query, $specified = null)
+	public function compileSelect(Builder $query)
 	{
-		$cypher = array();
+		if (is_null($query->columns)) $query->columns = array('*');
 
-        $components = array();
-
-        // Setup the components that we need to compile
-        if ($specified)
-        {
-            // We support passing a string as well
-            // by turning it into an array as needed
-            // to be $components
-            if ( ! is_array($specified))
-            {
-                $specified = array($specified);
-            }
-
-            $components = $specified;
-
-        } else
-        {
-            $components = $this->selectComponents;
-        }
-
-		foreach ($components as $component)
-		{
-            // Compiling return for Orientdb is
-            // handled in the compileColumns method
-            // in order to keep the convenience provided by Eloquent
-            // that deals with collecting and processing the columns
-            if ($component == 'return') $component = 'columns';
-
-            $cypher[$component] = $this->compileComponent($query, $components, $component);
-		}
-
-		return $cypher;
+		return trim($this->concatenate($this->compileComponents($query)));
 	}
 
-    /**
-     * Compile a single component.
-     *
-     * @param  \Illuminate\Database\Query\Builder $query
-     * @param  array $components
-     * @param  string $component
-     * @return string
-     */
-    protected function compileComponent(Builder $query, $components, $component)
-    {
-        $cypher = '';
-
-        // Let's make sure this is a proprietary component that we support
-        if ( ! in_array($component, $components))
-        {
-            throw new InvalidCypherGrammarComponentException($component);
-        }
-
-        // To compile the query, we'll spin through each component of the query and
-        // see if that component exists. If it does we'll just call the compiler
-        // function for the component which is responsible for making the Cypher.
-        if ( ! is_null($query->$component))
-        {
-            $method = 'compile'.ucfirst($component);
-
-            $cypher = $this->$method($query, $query->$component);
-        }
-
-        return $cypher;
-    }
-
-    /**
-     * Compile the MATCH for a query with relationships.
-     *
-     * @param  \Illuminate\Database\Query\Builder $query
-     * @param  array  $matches
-     * @return string
-     */
-    public function compileMatches(Builder $query, $matches)
-    {
-        if ( ! is_array($matches) || empty($matches)) return '';
-
-        $prepared = array();
-
-        foreach ($matches as $match)
-        {
-            $method = 'prepareMatch'. ucfirst($match['type']);
-            $prepared[] = $this->$method($match);
-        }
-
-        return "MATCH " . implode(', ', $prepared);
-    }
-
-    /**
-     * Prepare a query for MATCH using
-     * collected $matches of type Relation
-     *
-     * @param  array $match
-     * @return string
-     */
-    public function prepareMatchRelation(array $match)
-    {
-        $parent        = $match['parent'];
-        $related       = $match['related'];
-        $property      = $match['property'];
-        $direction     = $match['direction'];
-        $relationship  = $match['relationship'];
-
-        // Prepare labels for query
-        $parentLabels  = $this->prepareLabels($parent['labels']);
-        $relatedLabels = $this->prepareLabels($related['labels']);
-
-        // Get the relationship ready for query
-        $relationshipLabel = $this->prepareRelation($relationship, $related['node']);
-
-        // We treat node ids differently here in Cypher
-        // so we will have to turn it into something like id(node)
-        $property = $property == 'id' ? 'id('. $parent['node'] .')' : $parent['node'] .'.'. $property;
-
-        return '('. $parent['node'] . $parentLabels .'), '
-                . $this->craftRelation($parent['node'], $relationshipLabel, $related['node'], $relatedLabels, $direction);
-    }
-
-    /**
-     * Prepare a query for MATCH using
-     * collected $matches of Type MorphTo
-     *
-     * @param  array $match
-     * @return string
-     */
-    public function prepareMatchMorphTo(array $match)
-    {
-        $parent        = $match['parent'];
-        $related       = $match['related'];
-        $property      = $match['property'];
-        $direction     = $match['direction'];
-
-        // Prepare labels and node for query
-        $relatedNode = $related['node'];
-        $parentLabels  = $this->prepareLabels($parent['labels']);
-
-        // We treat node ids differently here in Cypher
-        // so we will have to turn it into something like id(node)
-        $property = $property == 'id' ? 'id('. $parent['node'] .')' : $parent['node'] .'.'. $property;
-
-        return '('. $parent['node'] . $parentLabels .'), '
-                . $this->craftRelation($parent['node'], 'r', $relatedNode, '', $direction);
-    }
-
-    /**
-     * Craft a Cypher relationship of any type:
-     * INCOMING, OUTGOING or BIDIRECTIONAL
-     *
-     * examples:
-     * ---------
-     * OUTGOING
-     * [user:User]-[:POSTED]->[post:Post]
-     *
-     * INCOMING
-     * [phone:Phone]<-[:PHONE]-[owner:User]
-     *
-     * BIDIRECTIONAL
-     * [user:User]<-(:FOLLOWS)->[follower:User]
-     *
-     * @param  string $parentNode    The parent Model's node placeholder
-     * @param  string $relationLabel The label of the relationship i.e. :PHONE
-     * @param  string $relatedNode   The related Model's node placeholder
-     * @param  string $relatedLabels Labels of of related Node
-     * @param  string $direction     Where is it going?
-     * @return string
-     */
-    public function craftRelation($parentNode, $relationLabel, $relatedNode, $relatedLabels, $direction, $bare = false)
-    {
-        switch($direction)
-        {
-            case 'out':
-            default:
-                $relation = '(%s)-[%s]->%s';
-            break;
-
-            case 'in':
-                $relation = '(%s)<-[%s]-%s';
-            break;
-
-            case 'in-out':
-                $relation = '(%s)<-[%s]->%s';
-            break;
-        }
-
-        return ($bare) ? sprintf($relation, $parentNode, $relationLabel, $relatedNode)
-            : sprintf($relation, $parentNode, $relationLabel, '('. $relatedNode.$relatedLabels .')');
-    }
-
-
-    /**
-	 * Compile the "from" portion of the query
-     * which in cypher represents the nodes we're MATCHing
+	/**
+	 * Compile the components necessary for a select clause.
 	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder  $query
-	 * @param  string  $labels
+	 * @param  \Illuminate\Database\Query\Builder
+	 * @return array
+	 */
+	protected function compileComponents(Builder $query)
+	{
+		$sql = array();
+
+		foreach ($this->selectComponents as $component)
+		{
+			// To compile the query, we'll spin through each component of the query and
+			// see if that component exists. If it does we'll just call the compiler
+			// function for the component which is responsible for making the SQL.
+			if ( ! is_null($query->$component))
+			{
+				$method = 'compile'.ucfirst($component);
+
+				$sql[$component] = $this->$method($query, $query->$component);
+			}
+		}
+
+		return $sql;
+	}
+
+	/**
+	 * Compile an aggregated select clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $aggregate
 	 * @return string
 	 */
-    public function compileFrom(Builder $query, $labels)
-    {
-        // Only compile when no relational matches are specified,
-        // mostly used for simple queries.
-        if ( ! empty($query->matches)) return '';
+	protected function compileAggregate(Builder $query, $aggregate)
+	{
+		$column = $this->columnize($aggregate['columns']);
 
-        // first we will check whether we need
-        // to reformat the labels from an array
-        if (is_array($labels))
-        {
-            $labels = $this->prepareLabels($labels);
-        }
+		// If the query has a "distinct" constraint and we're not asking for all columns
+		// we need to prepend "distinct" onto the column name so that the query takes
+		// it into account when it performs the aggregating operations on the data.
+		if ($query->distinct && $column !== '*')
+		{
+			$column = 'distinct '.$column;
+		}
 
-        // every label must begin with a ':' so we need to check
-        // and reformat if need be.
-        $labels = ':' . preg_replace('/^:/', '', $labels);
+		return 'select '.$aggregate['function'].'('.$column.') as aggregate';
+	}
 
-        // now we add the default placeholder for this node
-        $labels = $query->modelAsNode() . $labels;
+	/**
+	 * Compile the "select *" portion of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $columns
+	 * @return string
+	 */
+	protected function compileColumns(Builder $query, $columns)
+	{
+		// If the query is actually performing an aggregating select, we will let that
+		// compiler handle the building of the select clauses, as it will need some
+		// more syntax that is best handled by that function to keep things neat.
+		if ( ! is_null($query->aggregate)) return;
 
-        return sprintf("MATCH (%s)", $labels);
-    }
+		$select = $query->distinct ? 'select distinct ' : 'select ';
 
-    	/**
+		return $select.$this->columnize($columns);
+	}
+
+	/**
+	 * Compile the "from" portion of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  string  $table
+	 * @return string
+	 */
+	protected function compileFrom(Builder $query, $table)
+	{
+		return 'from '.$this->wrapTable($table);
+	}
+
+	/**
+	 * Compile the "join" portions of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $joins
+	 * @return string
+	 */
+	protected function compileJoins(Builder $query, $joins)
+	{
+		$sql = array();
+
+		foreach ($joins as $join)
+		{
+			$table = $this->wrapTable($join->table);
+
+			// First we need to build all of the "on" clauses for the join. There may be many
+			// of these clauses so we will need to iterate through each one and build them
+			// separately, then we'll join them up into a single string when we're done.
+			$clauses = array();
+
+			foreach ($join->clauses as $clause)
+			{
+				$clauses[] = $this->compileJoinConstraint($clause);
+			}
+
+			foreach ($join->bindings as $index => $binding)
+			{
+				unset($join->bindings[$index]);
+
+				$query->addBinding($binding, 'join');
+			}
+
+			// Once we have constructed the clauses, we'll need to take the boolean connector
+			// off of the first clause as it obviously will not be required on that clause
+			// because it leads the rest of the clauses, thus not requiring any boolean.
+			$clauses[0] = $this->removeLeadingBoolean($clauses[0]);
+
+			$clauses = implode(' ', $clauses);
+
+			$type = $join->type;
+
+			// Once we have everything ready to go, we will just concatenate all the parts to
+			// build the final join statement SQL for the query and we can then return the
+			// final clause back to the callers as a single, stringified join statement.
+			$sql[] = "$type join $table on $clauses";
+		}
+
+		return implode(' ', $sql);
+	}
+
+	/**
+	 * Create a join clause constraint segment.
+	 *
+	 * @param  array   $clause
+	 * @return string
+	 */
+	protected function compileJoinConstraint(array $clause)
+	{
+		$first = $this->wrap($clause['first']);
+
+		$second = $clause['where'] ? '?' : $this->wrap($clause['second']);
+
+		return "{$clause['boolean']} $first {$clause['operator']} $second";
+	}
+
+	/**
 	 * Compile the "where" portions of the query.
 	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder  $query
+	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @return string
 	 */
 	protected function compileWheres(Builder $query)
 	{
-		$cypher = array();
+		$sql = array();
 
 		if (is_null($query->wheres)) return '';
 
 		// Each type of where clauses has its own compiler function which is responsible
-		// for actually creating the where clauses Cypher. This helps keep the code nice
+		// for actually creating the where clauses SQL. This helps keep the code nice
 		// and maintainable since each clause has a very small method that it uses.
 		foreach ($query->wheres as $where)
 		{
-			$method = "WHERE{$where['type']}";
+			$method = "where{$where['type']}";
 
-			$cypher[] = $where['boolean'].' '.$this->$method($query, $where);
+			$sql[] = $where['boolean'].' '.$this->$method($query, $where);
 		}
 
 		// If we actually have some where clauses, we will strip off the first boolean
 		// operator, which is added by the query builders for convenience so we can
 		// avoid checking for the first clauses in each of the compilers methods.
-		if (count($cypher) > 0)
+		if (count($sql) > 0)
 		{
-			$cypher = implode(' ', $cypher);
+			$sql = implode(' ', $sql);
 
-			return 'WHERE '.preg_replace('/and |or /', '', $cypher, 1);
+			return 'where '.preg_replace('/and |or /', '', $sql, 1);
 		}
 
 		return '';
 	}
 
-    /**
+	/**
+	 * Compile a nested where clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNested(Builder $query, $where)
+	{
+		$nested = $where['query'];
+
+		return '('.substr($this->compileWheres($nested), 6).')';
+	}
+
+	/**
+	 * Compile a where condition with a sub-select.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder $query
+	 * @param  array   $where
+	 * @return string
+	 */
+	protected function whereSub(Builder $query, $where)
+	{
+		$select = $this->compileSelect($where['query']);
+
+		return $this->wrap($where['column']).' '.$where['operator']." ($select)";
+	}
+
+	/**
 	 * Compile a basic where clause.
 	 *
 	 * @param  \Illuminate\Database\Query\Builder  $query
@@ -304,188 +254,353 @@ class CypherGrammar extends Grammar {
 	 */
 	protected function whereBasic(Builder $query, $where)
 	{
-		$value = $this->parameter($where);
+		$value = $this->parameter($where['value']);
 
 		return $this->wrap($where['column']).' '.$where['operator'].' '.$value;
 	}
 
-    /**
-     * Compiled a WHERE clause with carried identifiers.
-     *
-     * @param  \Sgpatil\Orientdb\Query\Builder $query
-     * @param  array  $where
-     * @return string
-     */
-    protected function whereCarried(Builder $query, $where)
-    {
-        return $where['column'] .' '. $where['operator']. ' '.$where['value'];
-    }
+	/**
+	 * Compile a "between" where clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereBetween(Builder $query, $where)
+	{
+		$between = $where['not'] ? 'not between' : 'between';
 
-    /**
+		return $this->wrap($where['column']).' '.$between.' ? and ?';
+	}
+
+	/**
+	 * Compile a where exists clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereExists(Builder $query, $where)
+	{
+		return 'exists ('.$this->compileSelect($where['query']).')';
+	}
+
+	/**
+	 * Compile a where exists clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNotExists(Builder $query, $where)
+	{
+		return 'not exists ('.$this->compileSelect($where['query']).')';
+	}
+
+	/**
+	 * Compile a "where in" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereIn(Builder $query, $where)
+	{
+		$values = $this->parameterize($where['values']);
+
+		return $this->wrap($where['column']).' in ('.$values.')';
+	}
+
+	/**
+	 * Compile a "where not in" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNotIn(Builder $query, $where)
+	{
+		$values = $this->parameterize($where['values']);
+
+		return $this->wrap($where['column']).' not in ('.$values.')';
+	}
+
+	/**
+	 * Compile a where in sub-select clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereInSub(Builder $query, $where)
+	{
+		$select = $this->compileSelect($where['query']);
+
+		return $this->wrap($where['column']).' in ('.$select.')';
+	}
+
+	/**
+	 * Compile a where not in sub-select clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNotInSub(Builder $query, $where)
+	{
+		$select = $this->compileSelect($where['query']);
+
+		return $this->wrap($where['column']).' not in ('.$select.')';
+	}
+
+	/**
+	 * Compile a "where null" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNull(Builder $query, $where)
+	{
+		return $this->wrap($where['column']).' is null';
+	}
+
+	/**
+	 * Compile a "where not null" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereNotNull(Builder $query, $where)
+	{
+		return $this->wrap($where['column']).' is not null';
+	}
+
+	/**
+	 * Compile a "where day" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereDay(Builder $query, $where)
+	{
+		return $this->dateBasedWhere('day', $query, $where);
+	}
+
+	/**
+	 * Compile a "where month" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereMonth(Builder $query, $where)
+	{
+		return $this->dateBasedWhere('month', $query, $where);
+	}
+
+	/**
+	 * Compile a "where year" clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereYear(Builder $query, $where)
+	{
+		return $this->dateBasedWhere('year', $query, $where);
+	}
+
+	/**
+	 * Compile a date based where clause.
+	 *
+	 * @param  string  $type
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function dateBasedWhere($type, Builder $query, $where)
+	{
+		$value = $this->parameter($where['value']);
+
+		return $type.'('.$this->wrap($where['column']).') '.$where['operator'].' '.$value;
+	}
+
+	/**
+	 * Compile a raw where clause.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $where
+	 * @return string
+	 */
+	protected function whereRaw(Builder $query, $where)
+	{
+		return $where['sql'];
+	}
+
+	/**
+	 * Compile the "group by" portions of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $groups
+	 * @return string
+	 */
+	protected function compileGroups(Builder $query, $groups)
+	{
+		return 'group by '.$this->columnize($groups);
+	}
+
+	/**
+	 * Compile the "having" portions of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $havings
+	 * @return string
+	 */
+	protected function compileHavings(Builder $query, $havings)
+	{
+		$sql = implode(' ', array_map(array($this, 'compileHaving'), $havings));
+
+		return 'having '.preg_replace('/and |or /', '', $sql, 1);
+	}
+
+	/**
+	 * Compile a single having clause.
+	 *
+	 * @param  array   $having
+	 * @return string
+	 */
+	protected function compileHaving(array $having)
+	{
+		// If the having clause is "raw", we can just return the clause straight away
+		// without doing any more processing on it. Otherwise, we will compile the
+		// clause into SQL based on the components that make it up from builder.
+		if ($having['type'] === 'raw')
+		{
+			return $having['boolean'].' '.$having['sql'];
+		}
+
+		return $this->compileBasicHaving($having);
+	}
+
+	/**
+	 * Compile a basic having clause.
+	 *
+	 * @param  array   $having
+	 * @return string
+	 */
+	protected function compileBasicHaving($having)
+	{
+		$column = $this->wrap($having['column']);
+
+		$parameter = $this->parameter($having['value']);
+
+		return $having['boolean'].' '.$column.' '.$having['operator'].' '.$parameter;
+	}
+
+	/**
+	 * Compile the "order by" portions of the query.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $orders
+	 * @return string
+	 */
+	protected function compileOrders(Builder $query, $orders)
+	{
+		return 'order by '.implode(', ', array_map(function($order)
+		{
+			if (isset($order['sql'])) return $order['sql'];
+
+			return $this->wrap($order['column']).' '.$order['direction'];
+		}
+		, $orders));
+	}
+
+	/**
 	 * Compile the "limit" portions of the query.
 	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder  $query
+	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @param  int  $limit
 	 * @return string
 	 */
 	protected function compileLimit(Builder $query, $limit)
 	{
-		return 'LIMIT '.(int) $limit;
+		return 'limit '.(int) $limit;
 	}
 
-    /**
-	 * Compile the "SKIP" portions of the query.
+	/**
+	 * Compile the "offset" portions of the query.
 	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder  $query
+	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @param  int  $offset
 	 * @return string
 	 */
 	protected function compileOffset(Builder $query, $offset)
 	{
-		return 'SKIP '.(int) $offset;
+		return 'offset '.(int) $offset;
 	}
 
-    /**
-     * Compile the "RETURN *" portion of the query.
-     *
-     * @param  \Sgpatil\Orientdb\Query\Builder  $query
-     * @param  array  $columns
-     * @return string
-     */
-    protected function compileColumns(Builder $query, $properties)
-    {
-        // When we have an aggregate we will have to return it instead of the plain columns
-        // since aggregates for Cypher are not calculated at the beginning of the query like SQL
-        // instead we'll have to return in a form such as: RETURN max(user.logins).
-        if ( ! is_null($query->aggregate)) return $this->compileAggregate($query, $query->aggregate);
-
-        // In the case where the query has relationships
-        // we need to return the requested properties as is
-        // since they are considered node placeholders.
-        if ( ! empty($query->matches))
-        {
-            $properties = implode(', ', array_values($properties));
-        } else
-        {
-            $properties = $this->columnize($properties);
-        }
-
-        $distinct = ($query->distinct) ? 'DISTINCT ' : '';
-
-        return 'RETURN ' . $distinct . $properties;
-    }
-
-    /**
-	 * Compile the "order by" portions of the query.
-	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder $query
-	 * @param  array  $orders
-	 * @return string
-	 */
-    public function compileOrders(Builder $query, $orders)
-    {
-        return 'ORDER BY '. implode(', ', array_map(function($order){
-                return $this->wrap($order['column']).' '.mb_strtoupper($order['direction']);
-        }, $orders));
-    }
-
-    /**
-	 * Compile an update statement into SQL.
-	 *
-	 * @param  \Sgpatil\Orientdb\Query\Builder  $query
-	 * @param  array  $values
-	 * @return string
-	 */
-    public function compileUpdate(Builder $query, $values)
-    {
-        // Each one of the columns in the update statements needs to be wrapped in the
-		// keyword identifiers, also a place-holder needs to be created for each of
-		// the values in the list of bindings so we can make the sets statements.
-
-        foreach ($values as $key => $value)
-		{
-            // Update bindings are differentiated with an _update postfix to make sure the don't clash
-            // with query bindings.
-			$columns[] = $this->wrap($key) . ' = ' . $this->parameter(array('column' => $key .'_update'));
-		}
-
-		$columns = implode(', ', $columns);
-
-		// Of course, update queries may also be constrained by where clauses so we'll
-		// need to compile the where clauses and attach it to the query so only the
-		// intended records are updated by the Cypher statements we generate to run.
-		$where = $this->compileWheres($query);
-
-        // We always need the MATCH clause in our Cypher which
-        // is the responsibility of compiling the From component.
-		$match = $this->compileComponents($query, array('from'));
-        $match = $match['from'];
-
-        // When updating we need to return the count of the affected nodes
-        // so we trick the Columns compiler into returning that for us.
-        $return = $this->compileColumns($query, array('count('. $query->modelAsNode() .')'));
-
-        return "$match $where SET $columns $return";
-    }
-
-    /**
-     * Compile a "where in" clause.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  array  $where
-     * @return string
-     */
-    protected function whereIn(Builder $query, $where)
-    {
-        $values = $this->valufy($where['values']);
-
-        return $this->wrap($where['column']).' IN ['.$values.']';
-    }
-
-    /**
-	 * Compile a delete statement into Cypher.
+	/**
+	 * Compile the "union" queries attached to the main query.
 	 *
 	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @return string
 	 */
-	public function compileDelete(Builder $query)
-    {
-        // We always need the MATCH clause in our Cypher which
-        // is the responsibility of compiling the From component.
-        $match = $this->compileComponents($query, array('from'));
-        $match = $match['from'];
+	protected function compileUnions(Builder $query)
+	{
+		$sql = '';
 
-        $where = is_array($query->wheres) ? $this->compileWheres($query) : '';
+		foreach ($query->unions as $union)
+		{
+			$sql .= $this->compileUnion($union);
+		}
 
-        return "$match $where DELETE " . $query->modelAsNode();
-    }
+		if (isset($query->unionOrders))
+		{
+			$sql .= ' '.$this->compileOrders($query, $query->unionOrders);
+		}
 
-    public function compileWith(Builder $query, $with)
-    {
-        $parts = [];
+		if (isset($query->unionLimit))
+		{
+			$sql .= ' '.$this->compileLimit($query, $query->unionLimit);
+		}
 
-        if ( ! empty($with))
-        {
-            foreach ($with as $identifier => $part)
-            {
-                $parts[] = ( ! is_numeric($identifier)) ? "$identifier AS $part" : $part;
-            }
+		if (isset($query->unionOffset))
+		{
+			$sql .= ' '.$this->compileOffset($query, $query->unionOffset);
+		}
 
-            return 'WITH '. implode(', ', $parts);
-        }
-    }
+		return ltrim($sql);
+	}
 
-    /**
-     * Compile an insert statement into Cypher.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  array  $values
-     * @return string
-     */
-    public function compileInsert(Builder $query, array $values)
-    {
-     //   dd($values);
-        $table = $this->wrapTable($query->from);
+	/**
+	 * Compile a single union statement.
+	 *
+	 * @param  array  $union
+	 * @return string
+	 */
+	protected function compileUnion(array $union)
+	{
+		$joiner = $union['all'] ? ' union all ' : ' union ';
+
+		return $joiner.$union['query']->toSql();
+	}
+
+	/**
+	 * Compile an insert statement into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $values
+	 * @return string
+	 */
+	public function compileInsert(Builder $query, array $values)
+	{
+		// Essentially we will force every insert to be treated as a batch insert which
+		// simply makes creating the SQL easier for us since we can utilize the same
+		// basic routine regardless of an amount of records given to us to insert.
+		$table = $this->wrapTable($query->from);
 
 		if ( ! is_array(reset($values)))
 		{
@@ -493,8 +608,6 @@ class CypherGrammar extends Grammar {
 		}
 
 		$columns = $this->columnize(array_keys(reset($values)));
-                
-
 
 		// We need to build a list of parameter place-holders of values that are bound
 		// to the query. Each insert should have the exact same amount of parameter
@@ -506,132 +619,124 @@ class CypherGrammar extends Grammar {
 		$parameters = implode(', ', $value);
 
 		return "insert into $table ($columns) values $parameters";
+	}
 
-    }
+	/**
+	 * Compile an insert and get ID statement into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array   $values
+	 * @param  string  $sequence
+	 * @return string
+	 */
+	public function compileInsertGetId(Builder $query, $values, $sequence)
+	{
+		return $this->compileInsert($query, $values);
+	}
 
-    /**
-     * Compile a query that creates multiple nodes of multiple model types related all together.
-     *
-     * @param  \Sgpatil\Orientdb\Query\Builder $query
-     * @param  array  $create
-     * @return string
-     */
-    public function compileCreateWith(Builder $query, $create)
-    {
-        $model   = $create['model'];
-        $related = $create['related'];
-        $identifier = true; // indicates that we this entity requires an identifier for prepareEntity.
+	/**
+	 * Compile an update statement into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  array  $values
+	 * @return string
+	 */
+	public function compileUpdate(Builder $query, $values)
+	{
+		$table = $this->wrapTable($query->from);
 
-        // Prepare the parent model as a query entity with an identifier to be
-        // later used when relating with the rest of the models, something like:
-        // (post:`Post` {title: '..', body: '...'})
-        $entity = $this->prepareEntity([
-            'label'    => $model['label'],
-            'bindings' => $model['attributes']
-        ], $identifier);
+		// Each one of the columns in the update statements needs to be wrapped in the
+		// keyword identifiers, also a place-holder needs to be created for each of
+		// the values in the list of bindings so we can make the sets statements.
+		$columns = array();
 
-        $parentNode = $this->modelAsNode($model['label']);
+		foreach ($values as $key => $value)
+		{
+			$columns[] = $this->wrap($key).' = '.$this->parameter($value);
+		}
 
-        // Prepare the related models as entities for the query.
-        $relations = [];
-        $attachments = [];
-        foreach ($related as $with)
-        {
-            $label    = $with['label'];
-            $values   = $with['create'];
-            $attach   = $with['attach'];
-            $relation = $with['relation'];
+		$columns = implode(', ', $columns);
 
-            if ( ! is_array($values)) $values = (array) $values;
+		// If the query has any "join" clauses, we will setup the joins on the builder
+		// and compile them so we can attach them to this update, as update queries
+		// can get join statements to attach to other tables when they're needed.
+		if (isset($query->joins))
+		{
+			$joins = ' '.$this->compileJoins($query, $query->joins);
+		}
+		else
+		{
+			$joins = '';
+		}
 
-            // Indicate a bare new relation when being crafted so that we distinguish it from relations
-            // b/w existing records.
-            $bare = true;
+		// Of course, update queries may also be constrained by where clauses so we'll
+		// need to compile the where clauses and attach it to the query so only the
+		// intended records are updated by the SQL statements we generate to run.
+		$where = $this->compileWheres($query);
 
-            // We need to craft a relationship between the parent model's node identifier
-            // and every single relationship record so that we get something like this:
-            // (post)-[:PHOTO]->(:Photo {url: '', caption: '..'})
-            foreach ($values as $bindings)
-            {
-                $relations[] = $this->craftRelation($parentNode,
-                                            ':'. $relation['type'],
-                                            $this->prepareEntity(compact('label', 'bindings')),
-                                            $this->modelAsNode($label),
-                                            $relation['direction'],
-                                            $bare);
-            }
+		return trim("update {$table}{$joins} set $columns $where");
+	}
 
-            // Set up the query parts that are required to attach two nodes.
-            if ( ! empty($attach))
-            {
-                // Now we deal with our attachments so that we create the conditional
-                // queries for each relation that we need to attach.
-                $node = $this->modelAsNode($label, $relation['name']);
-                $nodeLabel = $this->prepareLabels($label);
+	/**
+	 * Compile a delete statement into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @return string
+	 */
+	public function compileDelete(Builder $query)
+	{
+		$table = $this->wrapTable($query->from);
 
-                // An attachment query is a combination of MATCH, WHERE and CREATE where
-                // we MATCH the nodes that we need to attach, set the conditions
-                // on the records that we need to attach with WHERE and then
-                // CREATE these relationships.
-                $attachments['matches'][] = "({$node}{$nodeLabel})";
-                $attachments['wheres'][]  = "id($node) IN [". implode(', ', $attach) .']';
-                $attachments['relations'][] = $this->craftRelation($parentNode,
-                                                                ':'. $relation['type'],
-                                                                "($node)",
-                                                                $nodeLabel,
-                                                                $relation['direction'],
-                                                                $bare);
-            }
-        }
+		$where = is_array($query->wheres) ? $this->compileWheres($query) : '';
 
-        // Return the Cypher representation of the query that would look something like:
-        // CREATE (post:`Post` {title: '..', body: '..'})
-        $cypher = 'CREATE '. $entity;
-        // Then we add the records that we need to create as such:
-        // (post)-[:PHOTO]->(:`Photo` {url: ''}), (post)-[:VIDEO]->(:`Video` {title: '...'})
-        if ( ! empty($relations)) $cypher .= ', '. implode(', ', $relations);
-        // Now we add the attaching Cypher
-        if ( ! empty($attachments))
-        {
-            // Bring the parent node along with us to be used in the query further.
-            $cypher .= " WITH $parentNode ";
-            // MATCH the related nodes that we are attaching.
-            $cypher .= ' MATCH '. implode(', ', $attachments['matches']);
-            // Set the WHERE conditions for the heart of the query.
-            $cypher .= ' WHERE '. implode(' AND ', $attachments['wheres']);
-            // CREATE the relationships between matched nodes
-            $cypher .= ' CREATE UNIQUE'. implode(', ', $attachments['relations']);
-        }
+		return trim("delete from $table ".$where);
+	}
 
-        $cypher .= " RETURN $parentNode";
+	/**
+	 * Compile a truncate table statement into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @return array
+	 */
+	public function compileTruncate(Builder $query)
+	{
+		return array('truncate '.$this->wrapTable($query->from) => array());
+	}
 
-        return $cypher;
-    }
+	/**
+	 * Compile the lock into SQL.
+	 *
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @param  bool|string  $value
+	 * @return string
+	 */
+	protected function compileLock(Builder $query, $value)
+	{
+		return is_string($value) ? $value : '';
+	}
 
-    public function compileAggregate(Builder $query, $aggregate)
-    {
-        $distinct = null;
-        $function = $aggregate['function'];
-        // When calling for the distinct count we'll set the distinct flag and ask for the count function.
-        if ($function == 'countDistinct')
-        {
-            $function = 'count';
-            $distinct = 'DISTINCT ';
-        }
+	/**
+	 * Concatenate an array of segments, removing empties.
+	 *
+	 * @param  array   $segments
+	 * @return string
+	 */
+	protected function concatenate($segments)
+	{
+		return implode(' ', array_filter($segments, function($value)
+		{
+			return (string) $value !== '';
+		}));
+	}
 
-        $node  = $this->modelAsNode($aggregate['label']);
-
-        // We need to format the columns to be in the form of n.property unless it is a *.
-        $columns  = implode(', ', array_map(function($column) use($node) {
-            return $column == '*' ? $column : "$node.$column";
-        }, $aggregate['columns']));
-
-        if ( ! is_null($aggregate['percentile']))
-        {
-            $percentile = $aggregate['percentile'];
-            return "RETURN $function($columns, $percentile)";
-        }
-
-        return "RETURN $function($distinct$columns)";
-    }
+	/**
+	 * Remove the leading boolean from a statement.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected function removeLeadingBoolean($value)
+	{
+		return preg_replace('/and |or /', '', $value, 1);
+	}
 }

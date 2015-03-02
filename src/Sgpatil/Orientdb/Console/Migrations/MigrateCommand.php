@@ -69,10 +69,9 @@ class MigrateCommand extends BaseCommand {
 
 		$path = $this->getMigrationPath();
 
-               
 		$this->migrator->run($path, $pretend);
                 
-                exit('\n end \n');
+               
 
 		// Once the migrator has run we will grab the note output and send it out to
 		// the console screen, since the migrator itself functions without having
@@ -104,8 +103,6 @@ class MigrateCommand extends BaseCommand {
 		{
 			$options = array('--database' => $this->input->getOption('database'));
 			$this->call('orient:install', $options);
-                }else{
-                    echo "I m inside";
                 }
 	}
 

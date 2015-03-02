@@ -827,6 +827,7 @@ exit('checking');
                 
 		$results = new Collection($res->getData());
 
+                
 		$values = $results->fetch($columns[0])->all();
 
 		// If a key was specified and we have results, we will go ahead and combine
