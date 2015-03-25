@@ -8,6 +8,7 @@ Orientdb Graph Eloquent Driver for Laravel 4
 
  - [Installation](#installation)
  - [Configuration](#configuration)
+ - [Migration](#migration)
 
 ## Installation
 
@@ -46,11 +47,32 @@ Add the connection defaults:
         'driver' => 'orientdb',
         'host'   => 'localhost',
         'port'   => '2480',
-        'database' => 'database',
+        'database' => 'database_name',
         'username' => 'root',
         'password' => 'root'
     ]
 ]
 ```
 
-Add your database username and password in 'username' and 'password' field
+Add your database username and password in 'username' and 'password' field. In 'database_name' add name of orientdb database which you want to connect and use.
+
+## Migration
+
+To create a migration, you may use the orient command on the Artisan CLI:
+
+```php
+php artisan orient:make create_users_table
+```
+
+The migration will be placed in your database/migrations folder, and will contain a timestamp which allows the framework to determine the order of the migrations.
+
+The --table and --create options may also be used to indicate the name of the table, and whether the migration will be creating a new table:
+```php
+php artisan orient:make add_votes_to_users_table --table=users_votes
+
+php artisan orient:make create_users_table --create=users
+```
+To run migration 
+```php
+php artisan orient
+```
