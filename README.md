@@ -68,7 +68,7 @@ The migration will be placed in your database/migrations folder, and will contai
 
 The --table and --create options may also be used to indicate the name of the table, and whether the migration will be creating a new table:
 ```php
-php artisan orient:make add_votes_to_users_table --table=users
+php artisan orient:make add_votes_to_users_table --table=users_votes
 
 php artisan orient:make create_users_table --create=users
 ```
