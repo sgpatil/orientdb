@@ -474,9 +474,35 @@ class Blueprint {
 	 * @param  bool  $unsigned
 	 * @return \Illuminate\Support\Fluent
 	 */
-	public function smallInteger($column, $autoIncrement = false, $unsigned = false)
+	public function smallInteger($column, $length = 255)
 	{
-		return $this->addColumn('smallInteger', $column, compact('autoIncrement', 'unsigned'));
+		return $this->short($column, $length = 255);
+	}
+        
+        /**
+	 * Create a new small integer column on the table.
+	 *
+	 * @param  string  $column
+	 * @param  bool  $autoIncrement
+	 * @param  bool  $unsigned
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function short($column, $length = 255)
+	{
+		return $this->addColumn('SHORT', $column, compact('length'));
+	}
+        
+        /**
+	 * Create a new Long integer column on the table.
+	 *
+	 * @param  string  $column
+	 * @param  bool  $autoIncrement
+	 * @param  bool  $unsigned
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function long($column, $length = 255)
+	{
+		return $this->addColumn('LONG', $column, compact('length'));
 	}
 
 	/**
@@ -513,7 +539,7 @@ class Blueprint {
 	 */
 	public function float($column, $total = 8, $places = 2)
 	{
-		return $this->addColumn('float', $column, compact('total', 'places'));
+		return $this->addColumn('FLOAT', $column, compact('total', 'places'));
 	}
 
 	/**
@@ -526,7 +552,7 @@ class Blueprint {
 	 */
 	public function double($column, $total = null, $places = null)
 	{
-		return $this->addColumn('double', $column, compact('total', 'places'));
+		return $this->addColumn('DOUBLE', $column, compact('total', 'places'));
 	}
 
 	/**
@@ -539,7 +565,7 @@ class Blueprint {
 	 */
 	public function decimal($column, $total = 8, $places = 2)
 	{
-		return $this->addColumn('decimal', $column, compact('total', 'places'));
+		return $this->addColumn('DECIMAL', $column, compact('total', 'places'));
 	}
 
 	/**
@@ -550,7 +576,7 @@ class Blueprint {
 	 */
 	public function boolean($column)
 	{
-		return $this->addColumn('boolean', $column);
+		return $this->addColumn('BOOLEAN', $column);
 	}
 
 	/**
@@ -573,7 +599,7 @@ class Blueprint {
 	 */
 	public function date($column)
 	{
-		return $this->addColumn('date', $column);
+		return $this->addColumn('DATE', $column);
 	}
 
 	/**
@@ -584,7 +610,7 @@ class Blueprint {
 	 */
 	public function dateTime($column)
 	{
-		return $this->addColumn('dateTime', $column);
+		return $this->addColumn('DATETIME', $column);
 	}
 
 	/**
@@ -606,7 +632,7 @@ class Blueprint {
 	 */
 	public function timestamp($column)
 	{
-		return $this->addColumn('timestamp', $column);
+		return $this->addColumn('DATETIME', $column);
 	}
 
 	/**
@@ -651,7 +677,7 @@ class Blueprint {
 	 */
 	public function binary($column)
 	{
-		return $this->addColumn('binary', $column);
+		return $this->addColumn('BINARY', $column);
 	}
 
 	/**
@@ -837,5 +863,141 @@ class Blueprint {
 	{
 		return $this->commands;
 	}
+        
+        // New Types for orientdb
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function embedded($column)
+	{
+		return $this->addColumn('EMBEDDED', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function embeddedlist($column)
+	{
+		return $this->addColumn('EMBEDDEDLIST', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function embeddedset($column)
+	{
+		return $this->addColumn('EMBEDDEDSET', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function embeddedmap($column)
+	{
+		return $this->addColumn('EMBEDDEDMAP', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function Link($column)
+	{
+		return $this->addColumn('LINK', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function linklist($column)
+	{
+		return $this->addColumn('LINKLIST', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function linkset($column)
+	{
+		return $this->addColumn('LINKSET', $column);
+	}
+
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function linkmap($column)
+	{
+		return $this->addColumn('LINKMAP', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function byte($column)
+	{
+		return $this->addColumn('BYTE', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function custom($column)
+	{
+		return $this->addColumn('CUSTOM', $column);
+	}
+        
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function linkbag($column)
+	{
+		return $this->addColumn('LINKBAG', $column);
+	}
+        
+        /**
+	 * Create a new binary column on the table.
+	 *
+	 * @param  string  $column
+	 * @return \Illuminate\Support\Fluent
+	 */
+	public function any($column)
+	{
+		return $this->addColumn('ANY', $column);
+	}
+        
 
 }
