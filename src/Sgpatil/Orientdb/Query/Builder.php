@@ -115,7 +115,7 @@ class Builder extends IlluminateQueryBuilder {
     }
 
     /**
-     * Update a record in the database.
+     * Update a record in the database.  
      *
      * @param  array  $values
      * @return int
