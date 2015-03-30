@@ -191,8 +191,8 @@ class Connection extends IlluminateConnection {
                      $statement = $me->getBatchQuery($query, $bindings);
                     return $statement->getResultSet();
                     
-//                    $statement = $me->getCypherQuery($query, $bindings);
-//                    return $statement->getResultSet();
+                    // $statement = $me->getCypherQuery($query, $bindings);
+                    // return $statement->getResultSet();
 
                 });
     }

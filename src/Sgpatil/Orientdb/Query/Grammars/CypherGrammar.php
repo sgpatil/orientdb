@@ -600,8 +600,8 @@ class CypherGrammar extends Grammar {
 		// Essentially we will force every insert to be treated as a batch insert which
 		// simply makes creating the SQL easier for us since we can utilize the same
 		// basic routine regardless of an amount of records given to us to insert.
-		$table = $this->wrapTable($query->from);
-
+            
+		$table = $this->wrapTable($query->from[0]);
 		if ( ! is_array(reset($values)))
 		{
 			$values = array($values);

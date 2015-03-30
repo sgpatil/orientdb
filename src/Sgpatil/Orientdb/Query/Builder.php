@@ -14,8 +14,6 @@ use Illuminate\Database\Query\Builder as IlluminateQueryBuilder;
 use Doctrine\OrientDB\Binding\HttpBinding as Binding;
 use Doctrine\OrientDB\Binding\BindingParameters as BindingParameters;
 
-
-
 class Builder extends IlluminateQueryBuilder {
 
     /**
@@ -87,8 +85,6 @@ class Builder extends IlluminateQueryBuilder {
         $this->connection = $connection;
 
         $this->client = $connection->getClient();
-        
-        
     }
 
     /**
@@ -110,60 +106,12 @@ class Builder extends IlluminateQueryBuilder {
      * @param  string  $sequence
      * @return int
      */
-    public function insertGetId(array $values, $sequence = null) {
-
-         // create a neo4j Node
-        $node = $this->client->makeClass($this->from);
-
-//        // set its properties
-//        foreach ($values as $key => $value)
-//        {
-//            $node->setProperty($key, $value);
-//        }
-
-        // save the node
-        $node->save();
-exit('checking');
-        // get the saved node id
-        $id = $node->getId();
-
-        // set the labels
-        $node->addLabels(array_map(array($this, 'makeLabel'), $this->from));
-
-        return $id;
-
-        $query = new Query();
-
-        $query->from(array('users'))->where('username = ?', "admin");
-        print_r($this->from);
-        print_r($values);
-        dd($this->client);
-        exit('config param');
-        $output = $orient->query("create class Student");
-
-
-
-        $rome = new Vertex('Rome');
-        dd($rome);
-        //$node = $this->client->makeNode();
-
-        print_r($values);
-        exit;
-        // set its properties
-        foreach ($values as $key => $value) {
-            $node->setProperty($key, $value);
-        }
-
-        // save the node
-        $node->save();
-
-        // get the saved node id
-        $id = $node->getId();
-
-        // set the labels
-        $node->addLabels(array_map(array($this, 'makeLabel'), $this->from));
-
-        return $id;
+    public function insertGetId(array $values, $sequence = null) {     
+        $sql = $this->grammar->compileInsertGetId($this, $values, $sequence);
+        $values = $this->cleanBindings($values);
+        $res = $this->connection->insert($sql);
+        $res = $res->getData();
+        return $res[0]['@rid'];
     }
 
     /**
@@ -488,12 +436,12 @@ exit('checking');
 
         $cypher = $this->grammar->compileInsert($this, $values);
 
-      
+
         // Once we have compiled the insert statement's Cypher we can execute it on the
         // connection and return a result as a boolean success indicator as that
         // is the same type of result returned by the raw connection instance.
         $bindings = $this->cleanBindings($bindings);
-          
+
 
         return $this->connection->insert($cypher, $bindings);
     }
@@ -690,7 +638,7 @@ exit('checking');
 
         $results = $this->get($columns);
 
-        
+
         // Once we have executed the query, we will reset the aggregate property so
         // that more select queries can be executed against the database without
         // the aggregate value getting in the way when the grammar builds it.
@@ -787,8 +735,7 @@ exit('checking');
     public function newQuery() {
         return new Builder($this->connection, $this->grammar);
     }
-    
-    
+
     /**
      * Insert a new record and get the value of the primary key.
      *
@@ -798,68 +745,58 @@ exit('checking');
      */
     public function createClass($className) {
 
-         // create a neo4j Node
+        // create a neo4j Node
         $node = $this->client->makeClass($className);
         // save the node
         $node->save();
-        
     }
-    
-    
+
     /**
-	 * Get an array with the values of a given column.
-	 *
-	 * @param  string  $column
-	 * @param  string  $key
-	 * @return array
-	 */
-	public function lists($column, $key = null)
-	{
-          
-            
-		$columns = $this->getListSelect($column, $key);
-                
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string  $key
+     * @return array
+     */
+    public function lists($column, $key = null) {
 
-		// First we will just get all of the column values for the record result set
-		// then we can associate those values with the column if it was specified
-		// otherwise we can just give these values back without a specific key.
-                $res = $this->get($columns);
-                
-		$results = new Collection($res->getData());
 
-                
-		$values = $results->fetch($columns[0])->all();
+        $columns = $this->getListSelect($column, $key);
 
-		// If a key was specified and we have results, we will go ahead and combine
-		// the values with the keys of all of the records so that the values can
-		// be accessed by the key of the rows instead of simply being numeric.
-		if ( ! is_null($key) && count($results) > 0)
-		{
-			$keys = $results->fetch($key)->all();
 
-			return array_combine($keys, $values);
-		}
+        // First we will just get all of the column values for the record result set
+        // then we can associate those values with the column if it was specified
+        // otherwise we can just give these values back without a specific key.
+        $res = $this->get($columns);
 
-		return $values;
-	}
-        
-        /**
-	 * Execute the query as a "select" statement.
-	 *
-	 * @param  array  $columns
-	 * @return array|static[]
-	 */
-	public function get($columns = array('*'))
-	{       
+        $results = new Collection($res->getData());
+
+
+        $values = $results->fetch($columns[0])->all();
+
+        // If a key was specified and we have results, we will go ahead and combine
+        // the values with the keys of all of the records so that the values can
+        // be accessed by the key of the rows instead of simply being numeric.
+        if (!is_null($key) && count($results) > 0) {
+            $keys = $results->fetch($key)->all();
+
+            return array_combine($keys, $values);
+        }
+
+        return $values;
+    }
+
+    /**
+     * Execute the query as a "select" statement.
+     *
+     * @param  array  $columns
+     * @return array|static[]
+     */
+    public function get($columns = array('*')) {
         //      // No cache is this version
-		//if ( ! is_null($this->cacheMinutes)) return $this->getCached($columns);
+        //if ( ! is_null($this->cacheMinutes)) return $this->getCached($columns);
 
-		return $this->getFresh($columns);
-	}
-        
- 
-
-
-
+        return $this->getFresh($columns);
+    }
 
 }
