@@ -7,7 +7,7 @@ use Sgpatil\Orientdb\Migrations\MigrationRepositoryInterface;
 class InstallCommand extends Command {
 
 	/**
-	 * The console command name.
+	 * The console command name.  
 	 *
 	 * @var string
 	 */
