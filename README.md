@@ -79,3 +79,13 @@ php artisan orient
 ```
 
 ## How to Use
+```php
+class User extends Orientdb {
+
+    protected $fillable = ['name', 'email'];
+}
+
+$user = User::create(['name' => 'Some Name', 'email' => 'some@email.com']);
+
+```
+You can use this by extending Orientdb into model class. 
