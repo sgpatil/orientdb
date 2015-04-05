@@ -7,9 +7,9 @@ Orientdb Graph Eloquent Driver for Laravel 4
 ## Quick Reference
 
  - [Installation](#installation)
- - [Configuration](#configuration)
+ - [Configuration](#Database Configuration)
  - [Migration](#migration)
- - [How to use](#howtouse)
+ - [How to use](#How to Use)
 
 ## Installation
 
