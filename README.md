@@ -9,6 +9,7 @@ Orientdb Graph Eloquent Driver for Laravel 4
  - [Installation](#installation)
  - [Configuration](#configuration)
  - [Migration](#migration)
+ - [How to use](#howtouse)
 
 ## Installation
 
@@ -76,3 +77,5 @@ To run migration
 ```php
 php artisan orient
 ```
+
+## How to Use
