@@ -68,18 +68,18 @@ class Builder extends IlluminateBuilder {
 	 * @param  array  $properties
 	 * @return array|static[]
 	 */
-	public function getModels($properties = array('*'))
-	{
-		// First, we will simply get the raw results from the query builders which we
-		// can use to populate an array with Eloquent models. We will pass columns
-		// that should be selected as well, which are typically just everything.
-		$results = $this->query->get($properties);
-
-		// Once we have the results, we can spin through them and instantiate a fresh
-		// model instance for each records we retrieved from the database. We will
-		// also set the proper connection name for the model after we create it.
-        return $this->resultsToModels($this->model->getConnectionName(), $results);
-	}
+//	public function getModels($properties = array('*'))
+//	{
+//		// First, we will simply get the raw results from the query builders which we
+//		// can use to populate an array with Eloquent models. We will pass columns
+//		// that should be selected as well, which are typically just everything.
+//		$results = $this->query->get($properties);
+//
+//		// Once we have the results, we can spin through them and instantiate a fresh
+//		// model instance for each records we retrieved from the database. We will
+//		// also set the proper connection name for the model after we create it.
+//        return $this->resultsToModels($this->model->getConnectionName(), $results);
+//	}
 
     /**
      * Turn Orientdb result set into the corresponding model
@@ -87,37 +87,37 @@ class Builder extends IlluminateBuilder {
      * @param  \\Orientdb\Query\ResultSet $results
      * @return array
      */
-    protected function resultsToModels($connection, ResultSet $results)
-    {
-        $models = [];
-
-        if ($results->valid())
-        {
-            $columns = $results->getColumns();
-
-            foreach ($results as $result)
-            {
-                $attributes = $this->getProperties($columns, $result);
-
-                // Now that we have the attributes, we first check for mutations
-                // and if exists, we will need to mutate the attributes accordingly.
-                if ($this->shouldMutate($attributes))
-                {
-                    $models[] = $this->mutateToOrigin($result, $attributes);
-                }
-                // This is a regular record that we should deal with the normal way, creating an instance
-                // of the model out of the fetched attributes.
-                else
-                {
-                    $model = $this->model->newFromBuilder($attributes);
-                    $model->setConnection($connection);
-                    $models[] = $model;
-                }
-            }
-        }
-
-        return $models;
-    }
+//    protected function resultsToModels($connection, ResultSet $results)
+//    {
+//        $models = [];
+//
+//        if ($results->valid())
+//        {
+//            $columns = $results->getColumns();
+//
+//            foreach ($results as $result)
+//            {
+//                $attributes = $this->getProperties($columns, $result);
+//
+//                // Now that we have the attributes, we first check for mutations
+//                // and if exists, we will need to mutate the attributes accordingly.
+//                if ($this->shouldMutate($attributes))
+//                {
+//                    $models[] = $this->mutateToOrigin($result, $attributes);
+//                }
+//                // This is a regular record that we should deal with the normal way, creating an instance
+//                // of the model out of the fetched attributes.
+//                else
+//                {
+//                    $model = $this->model->newFromBuilder($attributes);
+//                    $model->setConnection($connection);
+//                    $models[] = $model;
+//                }
+//            }
+//        }
+//
+//        return $models;
+//    }
 
     /**
      * Mutate a result back into its original Model.

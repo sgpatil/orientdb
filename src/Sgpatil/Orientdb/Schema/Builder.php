@@ -1,31 +1,25 @@
 <?php namespace Sgpatil\Orientdb\Schema;
-
 use Closure;
 use Sgpatil\Orientdb\Connection;
-
 class Builder {
-
 	/**
 	 * The database connection instance.
 	 *
 	 * @var \Illuminate\Database\Connection
 	 */
 	protected $connection;
-
 	/**
 	 * The schema grammar instance.
 	 *
 	 * @var \Illuminate\Database\Schema\Grammars\Grammar
 	 */
 	protected $grammar;
-
 	/**
 	 * The Blueprint resolver callback.
 	 *
 	 * @var \Closure
 	 */
 	protected $resolver;
-
 	/**
 	 * Create a new database Schema manager.
 	 *
@@ -37,7 +31,6 @@ class Builder {
 		$this->connection = $connection;
 		$this->grammar = $connection->getSchemaGrammar();
 	}
-
 	/**
 	 * Determine if the given table exists.
 	 *
@@ -48,12 +41,9 @@ class Builder {
 	{
             //exit($table);
 		//$sql = $this->grammar->compileTableExists();
-
 		$table = $this->connection->getTablePrefix().$table;
-
 		return count($this->connection->select( array($table))) > 0;
 	}
-
 	/**
 	 * Determine if the given table has a given column.
 	 *
@@ -64,10 +54,8 @@ class Builder {
 	public function hasColumn($table, $column)
 	{
 		$column = strtolower($column);
-
 		return in_array($column, array_map('strtolower', $this->getColumnListing($table)));
 	}
-
 	/**
 	 * Get the column listing for a given table.
 	 *
@@ -77,12 +65,9 @@ class Builder {
 	public function getColumnListing($table)
 	{
 		$table = $this->connection->getTablePrefix().$table;
-
 		$results = $this->connection->select($this->grammar->compileColumnExists($table));
-
 		return $this->connection->getPostProcessor()->processColumnListing($results);
 	}
-
 	/**
 	 * Modify a table on the schema.
 	 *
@@ -94,7 +79,6 @@ class Builder {
 	{
 		$this->build($this->createBlueprint($table, $callback));
 	}
-
 	/**
 	 * Create a new table on the schema.
 	 *
@@ -104,15 +88,16 @@ class Builder {
 	 */
 	public function create($table, Closure $callback)
 	{
-		$blueprint = $this->createBlueprint($table);
+//            $schema = $this->getConnection()->getClient();
+//
+//		$schema->makeClass($table, $callback)->save();
+//                
 
+		$blueprint = $this->createBlueprint($table, $callback);
 		$blueprint->create();
-
 		$callback($blueprint);
-
 		$this->build($blueprint);
 	}
-
         /**
 	 * Create a new Class on the schema.
 	 *
@@ -123,11 +108,8 @@ class Builder {
 	public function createClass($table, Closure $callback)
 	{
 		$blueprint = $this->createBlueprint($table);
-
 		$blueprint->create();
-
 		$callback($blueprint);
-
 		$this->build($blueprint);
 	}
         
@@ -140,12 +122,9 @@ class Builder {
 	public function drop($table)
 	{
 		$blueprint = $this->createBlueprint($table);
-
 		$blueprint->drop();
-
 		$this->build($blueprint);
 	}
-
 	/**
 	 * Drop a table from the schema if it exists.
 	 *
@@ -155,12 +134,9 @@ class Builder {
 	public function dropIfExists($table)
 	{
 		$blueprint = $this->createBlueprint($table);
-
 		$blueprint->dropIfExists();
-
 		$this->build($blueprint);
 	}
-
 	/**
 	 * Rename a table on the schema.
 	 *
@@ -171,12 +147,9 @@ class Builder {
 	public function rename($from, $to)
 	{
 		$blueprint = $this->createBlueprint($from);
-
 		$blueprint->rename($to);
-
 		$this->build($blueprint);
 	}
-
 	/**
 	 * Execute the blueprint to build / modify the table.
 	 *
@@ -186,10 +159,8 @@ class Builder {
 	protected function build(Blueprint $blueprint)
 	{
             $grammar = new \Sgpatil\Orientdb\Schema\Grammars\OrientdbGrammar();
-
-		$blueprint->build($this->connection, $grammar);
+            $blueprint->build($this->connection, $grammar);
 	}
-
 	/**
 	 * Create a new command set with a Closure.
 	 *
@@ -203,10 +174,8 @@ class Builder {
 		{
 			return call_user_func($this->resolver, $table, $callback);
 		}
-
 		return new Blueprint($table, $callback);
 	}
-
 	/**
 	 * Get the database connection instance.
 	 *
@@ -216,7 +185,6 @@ class Builder {
 	{
 		return $this->connection;
 	}
-
 	/**
 	 * Set the database connection instance.
 	 *
@@ -226,10 +194,8 @@ class Builder {
 	public function setConnection(Connection $connection)
 	{
 		$this->connection = $connection;
-
 		return $this;
 	}
-
 	/**
 	 * Set the Schema Blueprint resolver callback.
 	 *
@@ -240,5 +206,4 @@ class Builder {
 	{
 		$this->resolver = $resolver;
 	}
-
 }

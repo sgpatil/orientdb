@@ -112,9 +112,9 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
 	 */
 	public function createRepository()
 	{
-		$schema = $this->getConnection()->getSchemaBuilder();
+		$schema = $this->getConnection()->getClient();
 
-		$schema->createClass($this->table, function($table)
+		$schema->makeClass($this->table, function($table)
 		{
 			// The migrations table is responsible for keeping track of which of the
 			// migrations have actually run for the application. We'll create the
@@ -122,7 +122,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface {
 			$table->string('migration');
 
 			$table->integer('batch');
-		});
+		})->save();
 	}
 
 	/**

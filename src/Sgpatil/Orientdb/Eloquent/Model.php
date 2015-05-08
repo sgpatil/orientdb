@@ -103,10 +103,11 @@ abstract class Model extends IlluminateModel {
 	 *
 	 * @return string
 	 */
-	public function getTable()
-	{
-		return $this->getDefaultNodeLabel();
-	}
+//	public function getTable()
+//	{
+//            exit('ok here it is');
+//		return $this->getDefaultNodeLabel();
+//	}
 
     /**
      * Define an inverse one-to-one or many relationship.

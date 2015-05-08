@@ -34,7 +34,7 @@ class Connection extends IlluminateConnection {
      */
     protected $transaction;
 
-    protected $schemaGrammar="rwarawr";
+    protected $schemaGrammar="pathofschemagrammar";
     /**
      * Default connection configuration parameters
      *

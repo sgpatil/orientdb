@@ -57,8 +57,9 @@ class Blueprint {
 	 * @return void
 	 */
 	public function build(Connection $connection, Grammar $grammar) {
-            $node = $connection->getClient()->makeClass($this->table, $this->columns);
-            $node->save();
+            $class = $connection->getClient()->makeClass($this->table);
+            $class->setProperty($this->columns);
+            $class->save();
         }
 
     /**

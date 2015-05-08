@@ -68,7 +68,7 @@ class MigrateCommand extends BaseCommand {
                 
 
 		$path = $this->getMigrationPath();
-
+                
 		$this->migrator->run($path, $pretend);
                 
                

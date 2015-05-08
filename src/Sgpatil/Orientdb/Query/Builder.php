@@ -471,7 +471,7 @@ class Builder extends IlluminateQueryBuilder {
         if (is_null($this->columns))
             $this->columns = $columns;
 
-        return $this->runSelect();
+        return $this->runSelect()->getData();
     }
 
     /**
