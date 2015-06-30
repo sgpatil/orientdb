@@ -4,6 +4,8 @@
 
 Orientdb Graph Eloquent Driver for Laravel 4
 
+Looking for [Orientdb Driver for Laravel 5](https://github.com/sgpatil/orientdb-laravel-5)
+
 ## Quick Reference
 
  - [Installation](#installation)
