@@ -1,5 +1,5 @@
 
-# Orientdb Driver for Laravel 4  [Depreciated]
+# Orientdb Driver for Laravel 4  [Deprecated]
 
 
 Orientdb Graph Eloquent Driver for Laravel 4
